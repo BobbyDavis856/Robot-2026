@@ -22,7 +22,8 @@ public class CalculationSubsystem {
     public enum Zone {
         ALLIANCE,
         OTHER_HIGH_CENTER,
-        OTHER_LOW_CENTER
+        OTHER_LOW_CENTER,
+        TRENCH
     }
 
     private Zone botZone = Zone.ALLIANCE;
@@ -33,6 +34,8 @@ public class CalculationSubsystem {
 
     private Translation2d[] allianceZone = new Translation2d[] {new Translation2d(), new Translation2d()};
 
+    private Translation2d[] trenchZone = new Translation2d[] {new Translation2d(), new Translation2d(), new Translation2d(), new Translation2d()};
+
     private Translation3d targetPosition = new Translation3d();
 
     public CalculationSubsystem() {
@@ -40,12 +43,15 @@ public class CalculationSubsystem {
     }
 
     public void updateAimingPositions() {
-        hubPosition = FieldHelpers.rotateBlueFieldCoordinates(
-            new Translation3d(
+        Translation3d blueHub = new Translation3d(
                 Constants.FieldConstants.HUB_SIDE_DISTANCE.in(Meter),
                 Constants.FieldConstants.FIELD_SIZE_Y.in(Meter) / 2.0,
                 Constants.FieldConstants.HUB_TARGET_HEIGHT.in(Meter)
-            ),
+            );
+        Translation3d redHub =  FieldHelpers.rotateBlueFieldCoordinates(blueHub,true);
+
+        hubPosition = FieldHelpers.rotateBlueFieldCoordinates(
+            blueHub,
             !RobotContainer.isBlueAlliance()
         );
 
@@ -63,6 +69,13 @@ public class CalculationSubsystem {
             rotatedPassPosition.plus(new Translation3d(0, -Constants.FieldConstants.PASS_OFFSET.in(Meter), 0))
         };
 
+        trenchZone = new Translation2d[] {
+            blueHub.toTranslation2d().plus(new Translation2d(0, Constants.FieldConstants.TRENCH_OFFSET.in(Meter))),
+            blueHub.toTranslation2d().plus(new Translation2d(0, -Constants.FieldConstants.TRENCH_OFFSET.in(Meter))),
+            redHub.toTranslation2d().plus(new Translation2d(0, Constants.FieldConstants.TRENCH_OFFSET.in(Meter))),
+            redHub.toTranslation2d().plus(new Translation2d(0, -Constants.FieldConstants.TRENCH_OFFSET.in(Meter)))
+        };
+
         if (RobotContainer.isBlueAlliance()) {
             allianceZone = new Translation2d[] {
                 new Translation2d(0,0),
@@ -77,6 +90,15 @@ public class CalculationSubsystem {
     }
 
     public void updateBotZone(Pose2d botPose) {
+
+        for (int index = 0; index < 4; index++) {
+            double distance = botPose.getTranslation().getDistance(trenchZone[index]);
+            if (distance < Constants.FieldConstants.TRENCH_RADIUS.in(Meter)) {
+                botZone = Zone.TRENCH;
+                return;
+            }
+        }
+        
         if (allianceZone[0].getX() <= botPose.getX() && allianceZone[0].getY() <= botPose.getY() &&
             allianceZone[1].getX() >= botPose.getX() && allianceZone[1].getY() >= botPose.getY()) {
             
@@ -102,6 +124,9 @@ public class CalculationSubsystem {
                 break;
             case OTHER_LOW_CENTER:
                 targetPosition = passPosition[1];
+                break;
+            case TRENCH:
+                targetPosition = hubPosition;
                 break;
         }
 
@@ -135,6 +160,10 @@ public class CalculationSubsystem {
         }
 
 
+    }
+
+    public Zone getZone() {
+        return botZone;
     }
 
     public Translation3d getTargetPosition() {

@@ -16,6 +16,7 @@ import frc.robot.RobotContainer;
 import frc.robot.libraries.FieldHelpers;
 import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
 import frc.robot.libraries.ProjectileSimulation.TargetSolution;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 
 public class TurretAutoAimCommand extends Command {
 
@@ -32,6 +33,8 @@ public class TurretAutoAimCommand extends Command {
     public void execute() {
         TargetSolution targetSolution = RobotContainer.calculationSubsystem.getTargetSolution();
         if (targetSolution.errorCode() == TargetErrorCode.NONE) {
+
+            RobotContainer.turretSubsystem.setDesiredState(TurretState.READY);
             Angle robotRelativeAngle = RobotContainer.turretSubsystem.getTurretPointAngle(targetSolution.launchYaw());
             RobotContainer.turretSubsystem.setTurretYaw(robotRelativeAngle);
 

@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.SubsystemStateMachine;
+import frc.robot.subsystems.turret.CalculationSubsystem.Zone;
 
 public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.turret.TurretSubsystem.TurretState> {
 
@@ -77,16 +78,12 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         turretYawPID.setGoal(
             MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian))
         );
-
-        SmartDashboard.putNumber("Turret/Target Yaw", turretYawPID.getGoal().position * (180 / Math.PI));
     }
 
     public void setTurretPitch(Angle angle) {
         turretPitchPID.setGoal(
             MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian))
         );
-
-        SmartDashboard.putNumber("Turret/Target Pitch", turretPitchPID.getGoal().position * (180 / Math.PI));
     }
 
     public Angle getTurretTargetYaw() {
@@ -153,6 +150,10 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     @Override
 public void periodic() {
+        if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
+            setDesiredState(TurretState.STOWED);
+        }
+
         // Safety Check as the desired state should only ever IDLE, HOMING, STOWED, or READY
         if (getDesiredState() == TurretState.AIMING) {
             setDesiredState(TurretState.IDLE);
@@ -276,5 +277,8 @@ public void periodic() {
 
         SmartDashboard.putString("Turret/Current State", getCurrentState().name());
         SmartDashboard.putString("Turret/Desired State", getDesiredState().name());
+
+        SmartDashboard.putNumber("Turret/Target Yaw", turretYawPID.getGoal().position * (180 / Math.PI));
+        SmartDashboard.putNumber("Turret/Target Pitch", turretPitchPID.getGoal().position * (180 / Math.PI));SmartDashboard.putNumber("Turret/Target Pitch", turretPitchPID.getGoal().position * (180 / Math.PI));
     }
 }
