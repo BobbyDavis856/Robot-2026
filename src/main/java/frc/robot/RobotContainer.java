@@ -140,9 +140,7 @@ public class RobotContainer {
 			swerveSubsystem.setDefaultCommand(driveFieldOrientedAngularVelocity);
 		}
 
-		if (Constants.TurretConstants.ENABLED) {
-			turretSubsystem.setDefaultCommand(new TurretAutoAimCommand());
-		}
+		turretSubsystem.setDefaultCommand(new TurretAutoAimCommand());
 
 
 	}
