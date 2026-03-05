@@ -18,6 +18,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -78,6 +80,7 @@ public class RobotContainer {
 
 	public static final CommandXboxController driverController = new CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 	
+	private final SendableChooser<Command> autoChooser;
 
 	// Transforms controller input into swerve drive speeds
 	public static Supplier<ChassisSpeeds> driveAngularVelocity;
@@ -108,6 +111,12 @@ public class RobotContainer {
 		registerCommands();
 
 		configureBindings();
+
+		autoChooser = AutoBuilder.buildAutoChooser();
+
+		SmartDashboard.putData("Auto Chooser", autoChooser);
+
+
 
 		//DO SANITY CHECKS OF THE MAGNUS EFFECT
 		/*
@@ -159,6 +168,7 @@ public class RobotContainer {
 
 
 	}
+	
 
 	public static boolean isBlueAlliance(){
         var alliance = DriverStation.getAlliance();
@@ -166,7 +176,7 @@ public class RobotContainer {
     }
 
 	public Command getAutonomousCommand() {
-		return Commands.print("No autonomous command configured");
+		return autoChooser.getSelected();
 	}
 
 	public void initAll() {

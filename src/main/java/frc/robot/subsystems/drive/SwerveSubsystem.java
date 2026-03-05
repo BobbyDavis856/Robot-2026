@@ -77,24 +77,23 @@ public class SwerveSubsystem extends SubsystemBase{
             }
 
             AutoBuilder.configure(
-                this::getPose2d,                 // Pose2d supplier
-                this::resetOdometry,               // Pose2d consumer, used to reset odometry at the beginning of auto
-                this::getRobotChassisSpeeds,  // ChassisSpeeds supplier (MUST BE ROBOT-RELATIVE)
-                (speeds, feedforwards) -> driveRobotRelative(speeds), // Drive method (MUST BE ROBOT-RELATIVE)
+                this::getPose2d,
+                this::resetOdometry,
+                this::getRobotChassisSpeeds,
+                (speeds, feedforwards) -> driveRobotRelative(speeds),
                 new PPHolonomicDriveController(
-                    new PIDConstants(Constants.SwerveConstants.DRIVE_P, Constants.SwerveConstants.DRIVE_I, Constants.SwerveConstants.DRIVE_D), // Translation PID constants
-                    new PIDConstants(swerveDrive.swerveController.config.headingPIDF.p, swerveDrive.swerveController.config.headingPIDF.i, swerveDrive.swerveController.config.headingPIDF.d)  // Rotation PID constants
+                    new PIDConstants(Constants.SwerveConstants.DRIVE_P, Constants.SwerveConstants.DRIVE_I, Constants.SwerveConstants.DRIVE_D),
+                    new PIDConstants(swerveDrive.swerveController.config.headingPIDF.p, swerveDrive.swerveController.config.headingPIDF.i, swerveDrive.swerveController.config.headingPIDF.d)
                 ),
                 config, 
                 () -> {
-                    // Boolean supplier that controls whether paths should be mirrored based on alliance color
                     var alliance = DriverStation.getAlliance();
                     if (alliance.isPresent()) {
                         return alliance.get() == DriverStation.Alliance.Red;
                     }
                     return false;
                 },
-                this // Reference to this subsystem to set requirements
+                this
             );
         }
     }
