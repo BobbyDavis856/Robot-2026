@@ -9,6 +9,7 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
@@ -38,6 +39,7 @@ public class TurretIOReal implements TurretIO {
         // Configure motors
         turretYawConfig = new SparkMaxConfig();
         turretYawConfig.inverted(Constants.TurretConstants.TURRET_YAW_MOTOR_INVERTED);
+        turretYawConfig.idleMode(IdleMode.kCoast);
         double yawConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
         turretYawConfig.encoder.positionConversionFactor(yawConversionFactor);
         turretYawConfig.encoder.velocityConversionFactor(yawConversionFactor / 60.0);
@@ -46,6 +48,7 @@ public class TurretIOReal implements TurretIO {
         /*
         turretPitchConfig = new SparkMaxConfig();
         turretPitchConfig.inverted(Constants.TurretConstants.TURRET_PITCH_MOTOR_INVERTED);
+        turretPitchConfig.idleMode(IdleMode.kCoast);
         double pitchConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_PITCH_GEAR_RATIO;
         turretPitchConfig.encoder.positionConversionFactor(pitchConversionFactor);
         turretPitchConfig.encoder.velocityConversionFactor(pitchConversionFactor / 60.0);
