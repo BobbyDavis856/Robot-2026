@@ -349,6 +349,9 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         SmartDashboard.putNumber("Turret/Current Yaw", io.getYawRadians() * (180 / Math.PI));
         SmartDashboard.putNumber("Turret/Current Pitch", io.getPitchRadians() * (180 / Math.PI));
 
+        SmartDashboard.putNumber("Turret/Current Raw Yaw", io.getRawYawRadians() * (180 / Math.PI));
+        SmartDashboard.putNumber("Turret/Current Raw Absolute Yaw", io.getRawAbsoluteYawRadians() * (180 / Math.PI));
+
         SmartDashboard.putString("Turret/Current State", getCurrentState().name());
         SmartDashboard.putString("Turret/Desired State", getDesiredState().name());
 

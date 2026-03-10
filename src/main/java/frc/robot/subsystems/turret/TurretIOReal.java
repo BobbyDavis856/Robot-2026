@@ -22,6 +22,7 @@ public class TurretIOReal implements TurretIO {
     private final AbsoluteEncoder turretYawAbsoluteEncoder;
     private final SparkMaxConfig turretYawConfig;
     private final double yawConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
+    private final double relativeStepSize = (2 * Math.PI) / (Constants.TurretConstants.TURRET_YAW_COUNTS_PER_REV * Constants.TurretConstants.TURRET_YAW_GEAR_RATIO);
     private double yawAbsoluteOffset = 0;
 
     /*
@@ -48,6 +49,7 @@ public class TurretIOReal implements TurretIO {
         turretYawConfig.encoder.positionConversionFactor(yawConversionFactor);
         turretYawConfig.encoder.velocityConversionFactor(yawConversionFactor / 60.0);
         turretYawConfig.absoluteEncoder.positionConversionFactor(yawConversionFactor);
+        turretYawConfig.absoluteEncoder.inverted(Constants.TurretConstants.TURRET_YAW_ABSOLUTE_ENCODER_INVERTED);
         turretYawConfig.signals.absoluteEncoderPositionPeriodMs(20);
         turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -64,7 +66,7 @@ public class TurretIOReal implements TurretIO {
 
         yawHomingSensor = new DigitalInput(Constants.TurretConstants.TURRET_YAW_HOMING_SENSOR_DIO);
 
-
+        setYawEncoderPosition(turretYawEncoder.getPosition());
     }
 
     @Override
@@ -84,13 +86,12 @@ public class TurretIOReal implements TurretIO {
         double relativeEncoder = turretYawEncoder.getPosition();
         double absoluteEncoder = MathUtil.inputModulus(turretYawAbsoluteEncoder.getPosition() - yawAbsoluteOffset, 0, yawConversionFactor);
 
-        double difference = relativeEncoder - absoluteEncoder;
+        double difference = MathUtil.inputModulus(absoluteEncoder - relativeEncoder, -yawConversionFactor / 2.0, yawConversionFactor / 2.0);
+        
+        // Two relative encoder tick correction window because at high speeds the relative and absolute can become too desynced
+        difference = MathUtil.clamp(difference, -relativeStepSize * 2.0, relativeStepSize * 2.0);
 
-        long relativeRadians = Math.round(difference / yawConversionFactor);
-
-        double fusedRadians = (relativeRadians * yawConversionFactor) + absoluteEncoder;
-
-        return fusedRadians;
+        return relativeEncoder + difference;
     }
 
     
@@ -98,6 +99,16 @@ public class TurretIOReal implements TurretIO {
     public double getPitchRadians() {
         return 0.5;
         //return (Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian) - turretPitchEncoder.getPosition());
+    }
+
+    @Override
+    public double getRawYawRadians() {
+        return turretYawEncoder.getPosition();
+    }
+
+    @Override
+    public double getRawAbsoluteYawRadians() {
+        return turretYawAbsoluteEncoder.getPosition();
     }
 
     @Override
