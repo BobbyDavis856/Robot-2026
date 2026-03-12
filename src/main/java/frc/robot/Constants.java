@@ -35,7 +35,7 @@ public final class Constants {
     public static class SwerveConstants {
         public static final boolean ENABLED = true;
         
-        public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); // File with swerve configs
+        public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); // File with swerve configs.
         public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(10); // Maximum speed the swerve drive can go
         public static final Angle GYRO_OFFSET = Degree.of(0);
 
@@ -45,7 +45,7 @@ public final class Constants {
     }
 
     public final class TurretConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
 
         public static final int TURRET_YAW_MOTOR_ID = 56;
         public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
@@ -63,7 +63,7 @@ public final class Constants {
         public static final AngularVelocity TURRET_YAW_MAX_VELOCITY = DegreesPerSecond.of(1440);
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(1800);
         public static final Angle TURRET_YAW_IZONE = Degree.of(2);
-        public static final int TURRET_YAW_HOMING_SENSOR_DIO = 0;
+        public static final int TURRET_YAW_HOMING_SENSOR_DIO = 2;
 
         public static final int TURRET_PITCH_MOTOR_ID = 11;
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
@@ -82,8 +82,8 @@ public final class Constants {
 
         public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(90);
         public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(45);
-        public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-135);
-        public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(135);
+        public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-90);
+        public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(90);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
             0,
             0,
