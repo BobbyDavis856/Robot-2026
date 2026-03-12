@@ -34,6 +34,16 @@ public class ControllerIOXbox implements ControllerIO {
     }
 
     @Override
+    public Trigger leftStick() {
+        return this.xboxController.leftStick();
+    }
+
+    @Override
+    public Trigger rightStick() {
+        return this.xboxController.rightStick();
+    }
+
+    @Override
     public Trigger leftTrigger() {
         return this.xboxController.leftTrigger();
     }

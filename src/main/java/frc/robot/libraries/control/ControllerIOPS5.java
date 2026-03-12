@@ -33,6 +33,16 @@ public class ControllerIOPS5 implements ControllerIO {
     }
 
     @Override
+    public Trigger leftStick() {
+        return this.ps5Controller.L3();
+    }
+
+    @Override
+    public Trigger rightStick() {
+        return this.ps5Controller.R3();
+    }
+
+    @Override
     public Trigger leftTrigger() {
         return this.ps5Controller.L2();
     }

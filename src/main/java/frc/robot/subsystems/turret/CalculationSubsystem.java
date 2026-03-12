@@ -4,9 +4,11 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.Second;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -68,7 +70,7 @@ public class CalculationSubsystem {
                 Constants.FieldConstants.FIELD_SIZE_Y.in(Meter) / 2.0,
                 Constants.FieldConstants.HUB_TARGET_HEIGHT.in(Meter)
             );
-        Translation3d redHub =  FieldHelpers.rotateBlueFieldCoordinates(blueHub,true);
+        Translation3d redHub = FieldHelpers.rotateBlueFieldCoordinates(blueHub,true);
 
         hubPosition = FieldHelpers.rotateBlueFieldCoordinates(
             blueHub,
@@ -208,7 +210,6 @@ public class CalculationSubsystem {
                 TargetInput targetInput = this.getTargetInputs();
 
                 TargetSolution solution = projectileSimulationInstance.calculateLaunchAngleSimulation(targetInput);
-                
                 this.setTargetSolutions(solution);
 
                 double elapsedTime = Timer.getFPGATimestamp() - startTime;
@@ -233,5 +234,21 @@ public class CalculationSubsystem {
 
     public Translation3d getTargetPosition() {
         return targetPosition;
+    }
+
+    public DoubleSupplier getRobotHeadingX() {
+        return () -> {
+            Translation2d offset = getTargetPosition().toTranslation2d().minus(RobotContainer.swerveSubsystem.getPose2d().getTranslation());
+            double angle = Math.atan2(offset.getY(), offset.getX());
+            return Math.sin(angle);
+        };
+    }
+
+    public DoubleSupplier getRobotHeadingY() {
+        return () -> {
+            Translation2d offset = getTargetPosition().toTranslation2d().minus(RobotContainer.swerveSubsystem.getPose2d().getTranslation());
+            double angle = Math.atan2(offset.getY(), offset.getX());
+            return Math.cos(angle);
+        };
     }
 }

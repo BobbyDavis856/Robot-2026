@@ -1,5 +1,6 @@
 package frc.robot.subsystems.turret;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
@@ -71,8 +72,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     );
     private double turretPrevPitchSetpointVelocity = 0;
 
-    private double turretManualYawVoltage = 0;
-    private double turretManualPitchVoltage = 0;
+    private Angle turretManualYaw = Degree.of(0);
+    private Angle turretManualPitch = Degree.of(0);
 
     private double turretStowedYawAngle = 0;
 
@@ -170,9 +171,9 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         return turretPitchVoltage;
     }
 
-    public void setOverrideVoltages(Voltage yawVoltage, Voltage pitchVoltage) {
-        turretManualYawVoltage = yawVoltage.in(Volt);
-        turretManualPitchVoltage = pitchVoltage.in(Volt);
+    public void setOverrideAngles(Angle yaw, Angle pitch) {
+        turretManualYaw = yaw;
+        turretManualPitch = pitch;
     }
 
     @Override
@@ -331,8 +332,10 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 turretPitchVoltage = caclulateTurretPitchVoltage();
                 break;
             case MANUAL:
-                turretYawVoltage = turretManualYawVoltage;
-                turretPitchVoltage = turretManualPitchVoltage;
+                setTurretYaw(turretManualYaw);
+                setTurretPitch(turretManualPitch);
+                turretYawVoltage = calculateTurretYawVoltage();
+                turretPitchVoltage = caclulateTurretPitchVoltage();
                 break;
 
         }

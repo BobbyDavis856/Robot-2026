@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -23,6 +24,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.climb.ClimbCommand;
@@ -31,7 +34,7 @@ import frc.robot.commands.intake.RetractIntakeCommand;
 import frc.robot.commands.kicker.ActivateKickerCommand;
 import frc.robot.commands.turret.HomeTurretCommand;
 import frc.robot.commands.turret.ManualAimCommand;
-import frc.robot.commands.turret.ManualAimVotageCommand;
+import frc.robot.commands.turret.ToggleManualCommand;
 import frc.robot.commands.turret.TurretAutoAimCommand;
 import frc.robot.libraries.FieldHelpers;
 import frc.robot.libraries.PoseHelpers;
@@ -72,7 +75,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
-	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOXbox(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
 	// Establishes subsystems
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
@@ -102,30 +105,39 @@ public class RobotContainer {
 	
 	private static SendableChooser<Command> autoChooser;
 
-	// Transforms controller input into swerve drive speeds
-	public static Supplier<ChassisSpeeds> driveAngularVelocity;
-	
+	// Transforms controller input into swerve drive spee
+	public SwerveInputStream swerveInputStream;
+
+	public static boolean rotationalAiming = false;
+
 	public static Command driveFieldOrientedAngularVelocity;
 	public static Command turretAutoAimCommand;
 	
 
 	public RobotContainer() {
 		if (Constants.SwerveConstants.ENABLED) {
-			driveAngularVelocity = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
+			this.swerveInputStream = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
 					driverController.leftXCombinedSupplier(),//() -> driverController.getLeftY() * -1,
 					driverController.leftYCombinedSupplier())//() -> driverController.getLeftX() * -1)
 					.withControllerRotationAxis(
-						driverController.rightXSupplier())
+						driverController.rightXSupplier()
+					)
+					.withControllerHeadingAxis(
+						calculationSubsystem.getRobotHeadingX(),
+						calculationSubsystem.getRobotHeadingY()
+					)
+					.deadband(0.0001)
 					.scaleRotation(Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
 					.scaleTranslation(Constants.OperatorConstants.SWERVE_TRANSLATION_SCALE)
+					.headingWhile(() -> {return RobotContainer.rotationalAiming;})
 					.allianceRelativeControl(true);
-			driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(driveAngularVelocity);
+			driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(swerveInputStream);
+
 		} else {
-			driveAngularVelocity = () -> new ChassisSpeeds(0.0, 0.0, 0.0);
+			driveFieldOrientedAngularVelocity = swerveSubsystem.run(() -> {});
 		}
 
 		turretAutoAimCommand = new ManualAimCommand();
-		
 
 		registerCommands();
 
@@ -194,8 +206,19 @@ public class RobotContainer {
 
 		turretSubsystem.setDefaultCommand(turretAutoAimCommand);
 
+		driverController.leftStick().toggleOnTrue(new ToggleManualCommand(
+			() -> {return 0.0;}, driverController.rightYSupplier()
+		));
 
-
+		driverController.rightStick().toggleOnTrue(
+			new InstantCommand(() -> {
+				if (rotationalAiming) {
+					rotationalAiming = false;
+				} else {
+					rotationalAiming = true;
+				}
+			})
+		);
 	}
 	
 

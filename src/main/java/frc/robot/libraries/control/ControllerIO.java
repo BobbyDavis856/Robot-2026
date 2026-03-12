@@ -13,6 +13,9 @@ public interface ControllerIO {
     default double getRightX() {return 0;}
     default double getRightY() {return 0;}
 
+    default Trigger leftStick() {return new Trigger(() -> false);}
+    default Trigger rightStick() {return new Trigger(() -> false);}
+
     default Trigger leftTrigger() {return new Trigger(() -> false);}
     default Trigger rightTrigger() {return new Trigger(() -> false);}
 
