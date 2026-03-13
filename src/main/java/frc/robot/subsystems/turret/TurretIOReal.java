@@ -26,20 +26,20 @@ public class TurretIOReal implements TurretIO {
     private double yawAbsoluteOffset = 0;
 
     
-    //private SparkMax turretPitchMotor;
-    //private RelativeEncoder turretPitchEncoder;
-    //private SparkMaxConfig turretPitchConfig;
+    private SparkMax turretPitchMotor;
+    private RelativeEncoder turretPitchEncoder;
+    private SparkMaxConfig turretPitchConfig;
     
 
     private final DigitalInput yawHomingSensor;
 
     public TurretIOReal() {
         turretYawMotor = new SparkMax(Constants.TurretConstants.TURRET_YAW_MOTOR_ID, MotorType.kBrushless);
-        //turretPitchMotor = new SparkMax(Constants.TurretConstants.TURRET_PITCH_MOTOR_ID, MotorType.kBrushless);
+        turretPitchMotor = new SparkMax(Constants.TurretConstants.TURRET_PITCH_MOTOR_ID, MotorType.kBrushless);
 
         turretYawEncoder = turretYawMotor.getEncoder();
         turretYawAbsoluteEncoder = turretYawMotor.getAbsoluteEncoder();
-        //turretPitchEncoder = turretPitchMotor.getEncoder();
+        turretPitchEncoder = turretPitchMotor.getEncoder();
 
         // Configure motors
         
@@ -55,16 +55,15 @@ public class TurretIOReal implements TurretIO {
         turretYawConfig.signals.absoluteEncoderPositionPeriodMs(10);
         turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        /*
+        
         turretPitchConfig = new SparkMaxConfig();
         turretPitchConfig.inverted(Constants.TurretConstants.TURRET_PITCH_MOTOR_INVERTED);
         turretPitchConfig.idleMode(IdleMode.kCoast);
         double pitchConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_PITCH_GEAR_RATIO;
         turretPitchConfig.encoder.positionConversionFactor(pitchConversionFactor);
         turretPitchConfig.encoder.velocityConversionFactor(pitchConversionFactor / 60.0);
-        turretPitchConfig.encoder.inverted(Constants.TurretConstants.TURRET_PITCH_ENCODER_INVERTED);
         turretPitchMotor.configure(turretPitchConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        */
+        
 
         yawHomingSensor = new DigitalInput(Constants.TurretConstants.TURRET_YAW_HOMING_SENSOR_DIO);
 
@@ -73,13 +72,13 @@ public class TurretIOReal implements TurretIO {
 
     @Override
     public void setYawMotorVoltage(double voltage) {
-        //turretYawMotor.setVoltage(voltage);
+        turretYawMotor.setVoltage(voltage);
     }
 
     
     @Override
     public void setPitchMotorVoltage(double voltage) {
-        //turretPitchMotor.setVoltage(voltage);
+        turretPitchMotor.setVoltage(voltage);
     }
     
 
@@ -100,8 +99,7 @@ public class TurretIOReal implements TurretIO {
     
     @Override
     public double getPitchRadians() {
-        return 0.5;
-        //return (Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian) - turretPitchEncoder.getPosition());
+        return (Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian) - turretPitchEncoder.getPosition());
     }
 
     @Override

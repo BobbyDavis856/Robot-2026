@@ -67,7 +67,6 @@ public final class Constants {
 
         public static final int TURRET_PITCH_MOTOR_ID = 11;
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
-        public static final boolean TURRET_PITCH_ENCODER_INVERTED = false;
         public static final double TURRET_PITCH_GEAR_RATIO = 160.0 / 14.0; // Rotations of the motor for one rotation of the pitch
         public static final double TURRET_PITCH_ZERO_OFFSET = 0;
         public static final double TURRET_PITCH_P = 0;
@@ -80,7 +79,7 @@ public final class Constants {
         public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(10);
         public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(10);
 
-        public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(90);
+        public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(89);
         public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(45);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-70);
         public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(70);
