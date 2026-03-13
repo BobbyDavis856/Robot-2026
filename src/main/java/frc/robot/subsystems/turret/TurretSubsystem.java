@@ -156,9 +156,9 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     }
 
     private double caclulateTurretPitchVoltage() {
-        double turretPitchVoltage = turretPitchPID.calculate((Math.PI / 2.0) - io.getPitchRadians());
-
         TrapezoidProfile.State turretPitchState = turretPitchPID.getSetpoint();
+        double turretPitchVoltage = turretPitchPID.calculate(io.getPitchRadians(), turretPitchState);
+        
         turretPitchVoltage -= turretPitchFF.calculateWithVelocities( turretPrevPitchSetpointVelocity, turretPitchState.velocity);
         turretPitchVoltage += Math.sin(turretPitchState.position) * Constants.TurretConstants.TURRET_PITCH_G.in(Volt);
         turretPitchVoltage = MathUtil.clamp(

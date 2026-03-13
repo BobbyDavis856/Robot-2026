@@ -108,7 +108,7 @@ public class SwerveSubsystem extends SubsystemBase{
         resetOdometry(
             new Pose2d(
                 initialTranslation,
-                Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 0 : 180)
+                Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 180 : 0)
             )
         );
     }
@@ -119,7 +119,7 @@ public class SwerveSubsystem extends SubsystemBase{
             swerveDrive.resetOdometry(
                 new Pose2d(
                     swerveDrive.getPose().getTranslation(),
-                    Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 0 : 180)
+                    Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 180 : 0)
                 )
             );
             System.out.println("Zeroed Swerve");
