@@ -236,18 +236,18 @@ public class CalculationSubsystem {
         return targetPosition;
     }
 
-    public DoubleSupplier getRobotHeadingX() {
+    public DoubleSupplier getTargetHeadingX() {
         return () -> {
             Translation2d offset = getTargetPosition().toTranslation2d().minus(RobotContainer.swerveSubsystem.getPose2d().getTranslation());
-            double angle = Math.atan2(offset.getY(), offset.getX());
+            double angle = Math.atan2(-offset.getY(), -offset.getX());
             return Math.sin(angle);
         };
     }
 
-    public DoubleSupplier getRobotHeadingY() {
+    public DoubleSupplier getTargetHeadingY() {
         return () -> {
             Translation2d offset = getTargetPosition().toTranslation2d().minus(RobotContainer.swerveSubsystem.getPose2d().getTranslation());
-            double angle = Math.atan2(offset.getY(), offset.getX());
+            double angle = Math.atan2(-offset.getY(), -offset.getX());
             return Math.cos(angle);
         };
     }

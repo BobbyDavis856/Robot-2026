@@ -18,13 +18,16 @@ public class ManualAimCommand extends Command {
     @Override
     public void initialize() {
         SmartDashboard.putNumber("Turret/TargetYawAngle", 0);
+        SmartDashboard.putNumber("Turret/TargetPitchAngle", 70);
     }
 
     @Override
     public void execute() {
-        //System.out.println(SmartDashboard.getNumber("Turret/TargetYawAngle", 0));
+        System.out.println(SmartDashboard.getNumber("Turret/TargetPitchAngle", 0));
         RobotContainer.turretSubsystem.requestDesiredState(TurretState.READY, 5);
+
         RobotContainer.turretSubsystem.setTurretYaw(Degree.of(SmartDashboard.getNumber("Turret/TargetYawAngle", 0)));
+        RobotContainer.turretSubsystem.setTurretPitch(Degree.of(SmartDashboard.getNumber("Turret/TargetPitchAngle", 70)));
     }
 
     @Override

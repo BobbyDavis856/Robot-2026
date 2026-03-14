@@ -72,7 +72,7 @@ public class TurretIOReal implements TurretIO {
 
     @Override
     public void setYawMotorVoltage(double voltage) {
-        turretYawMotor.setVoltage(voltage);
+        //turretYawMotor.setVoltage(voltage);
     }
 
     

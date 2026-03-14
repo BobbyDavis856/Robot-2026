@@ -83,7 +83,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
-	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOXbox(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
 	// Establishes subsystems
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
@@ -123,7 +123,6 @@ public class RobotContainer {
 	private boolean turretHomed = false;
 
 	public static Command driveFieldOrientedAngularVelocity;
-	public static Command turretAutoAimCommand;
 	
 
 	public RobotContainer() {
@@ -131,12 +130,10 @@ public class RobotContainer {
 			this.swerveInputStream = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
 					driverController.leftXCombinedSupplier(),//() -> driverController.getLeftY() * -1,
 					driverController.leftYCombinedSupplier())//() -> driverController.getLeftX() * -1)
-					.withControllerRotationAxis(
-						() -> {return -driverController.rightXSupplier().getAsDouble();}
-					)
+					.withControllerRotationAxis(driverController.rightXSupplier())
 					.withControllerHeadingAxis(
-						calculationSubsystem.getRobotHeadingX(),
-						calculationSubsystem.getRobotHeadingY()
+						calculationSubsystem.getTargetHeadingX(),
+						calculationSubsystem.getTargetHeadingY()
 					)
 					.deadband(0.0001)
 					.scaleRotation(Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
@@ -148,8 +145,6 @@ public class RobotContainer {
 		} else {
 			driveFieldOrientedAngularVelocity = swerveSubsystem.run(() -> {});
 		}
-
-		turretAutoAimCommand = new ManualAimCommand();
 
 		registerCommands();
 
@@ -216,7 +211,7 @@ public class RobotContainer {
 			swerveSubsystem.setDefaultCommand(driveFieldOrientedAngularVelocity);
 		}
 
-		turretSubsystem.setDefaultCommand(turretAutoAimCommand);
+		turretSubsystem.setDefaultCommand(new ManualAimCommand());
 
 		driverController.leftStick().toggleOnTrue(new ToggleManualCommand(
 			() -> {return 0.0;}, driverController.rightYSupplier()
@@ -267,7 +262,7 @@ public class RobotContainer {
 		calculationSubsystem.startPhysicsSimulation();
 
 		swerveSubsystem.resetOdometry(
-			FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)))
+			FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)), isRedAlliance())
 		);
 
 		if (!turretHomed) {

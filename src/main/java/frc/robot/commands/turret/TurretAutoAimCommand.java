@@ -32,6 +32,7 @@ public class TurretAutoAimCommand extends Command {
 
     @Override
     public void execute() {
+        
         RobotContainer.turretSubsystem.requestDesiredState(TurretState.READY, 5);
 
         TargetSolution targetSolution = RobotContainer.calculationSubsystem.getTargetSolutions();

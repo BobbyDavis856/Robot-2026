@@ -24,6 +24,7 @@ public class ToggleManualCommand extends Command {
     public ToggleManualCommand(DoubleSupplier turretYawSupplier, DoubleSupplier turretPitchSupplier) {
         this.turretYawSupplier = turretYawSupplier;
         this.turretPitchSupplier = turretPitchSupplier;
+        
 
         addRequirements(RobotContainer.turretSubsystem);
     }
@@ -38,6 +39,7 @@ public class ToggleManualCommand extends Command {
 
     @Override
     public void execute() {
+        
         targetYaw = turretYawSupplier.getAsDouble() * 0.1;
         targetPitch += turretPitchSupplier.getAsDouble() * 0.1;
 

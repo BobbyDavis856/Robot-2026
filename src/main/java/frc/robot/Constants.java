@@ -72,7 +72,7 @@ public final class Constants {
         public static final double TURRET_PITCH_P = 0.05;
         public static final double TURRET_PITCH_I = 0;
         public static final double TURRET_PITCH_D = 0;
-        public static final Voltage TURRET_PITCH_S = Volts.of(0.05);
+        public static final Voltage TURRET_PITCH_S = Volts.of(0.1);
         public static final Voltage TURRET_PITCH_G = Volts.of(0.2);
         public static final double TURRET_PITCH_V = 0.15; // Unit is V/(rad/s)
         public static final double TURRET_PITCH_A = 0.15; // Unit is V/(rad/s^2)
@@ -150,7 +150,7 @@ public final class Constants {
     }
 
     public final class IntakeConstants {
-        public static final boolean ENABLED = true;
+        public static final boolean ENABLED = false;
 
         public static final int INTAKE_DEPLOYMENT_MOTOR_ID = 13;
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED = false;
@@ -158,7 +158,7 @@ public final class Constants {
 
         public static final int INTAKE_MOTOR_ID = 14;
         public static final boolean INTAKE_MOTOR_INVERTED = false;
-        public static final Voltage INTAKE_MOTOR_VOLTAGE = Volt.of(8);
+        public static final Voltage INTAKE_MOTOR_VOLTAGE = Volt.of(9);
 
         public static final int INTAKE_RETRACTED_SENSOR_DIO = 0;
         public static final int INTAKE_DEPLOYED_SENSOR_DIO = 1;
