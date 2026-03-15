@@ -36,6 +36,12 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         MANUAL
     }
 
+    private enum HomingStage {
+        SEARCHING,
+        REFINING_START,
+        REFINING_END
+    }
+
     private final TurretIO io;
 
     
@@ -75,12 +81,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     private Angle turretManualPitch = Degree.of(0);
 
     private double turretStowedYawAngle = 0;
-
-    private enum HomingStage {
-        SEARCHING,
-        REFINING_START,
-        REFINING_END
-    }
 
     private HomingStage turretHomingStage = HomingStage.SEARCHING;
     private double turretHomingStart = 0;
@@ -184,16 +184,18 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     @Override
     public void periodic() {
-        updateDesiredState();
-
         if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
             requestDesiredState(TurretState.STOWED, 30);
+        } else {
+            requestDesiredState(TurretState.IDLE, 0);
         }
 
         // Safety Check as the desired state should only ever IDLE, HOMING, STOWED, READY, or MANUAL
         if (getDesiredState() == TurretState.AIMING) {
             requestDesiredState(TurretState.IDLE, 6);
         }
+
+        updateDesiredState();
 
         switch (getCurrentState()) {
             case IDLE:
