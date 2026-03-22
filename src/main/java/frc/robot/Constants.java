@@ -45,7 +45,7 @@ public final class Constants {
     }
 
     public final class TurretConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
 
         public static final int TURRET_YAW_MOTOR_ID = 56;
         public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
@@ -54,12 +54,12 @@ public final class Constants {
         public static final double TURRET_YAW_GEAR_RATIO = 113.0 / 13.0; // Rotations of the motor for one rotation of the turret
         public static final double TURRET_YAW_COUNTS_PER_REV = 42;
         public static final double TURRET_YAW_FUSION_MULTIPLIER = 2.0;
-        public static final double TURRET_YAW_P = 7.2;
-        public static final double TURRET_YAW_I = 0;
-        public static final double TURRET_YAW_D = 0.15;
-        public static final Voltage TURRET_YAW_S = Volts.of(0.15);
-        public static final double TURRET_YAW_V = 0.169; // Unit is V/(rad/s)
-        public static final double TURRET_YAW_A = 0.019; // Unit is V/(rad/s^2)
+        public static final double TURRET_YAW_P = 2.25;
+        public static final double TURRET_YAW_I = 0.3;
+        public static final double TURRET_YAW_D = 0.1;
+        public static final Voltage TURRET_YAW_S = Volts.of(0.14);
+        public static final double TURRET_YAW_V = 0.12; // Unit is V/(rad/s)
+        public static final double TURRET_YAW_A = 0.018; // Unit is V/(rad/s^2)
         public static final AngularVelocity TURRET_YAW_MAX_VELOCITY = DegreesPerSecond.of(1440);
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(1800);
         public static final Angle TURRET_YAW_IZONE = Degree.of(5);
@@ -99,7 +99,7 @@ public final class Constants {
     }
 
     public final class ShooterConstants {
-        public static final boolean ENABLED = true;
+        public static final boolean ENABLED = false;
 
         public static final int SHOOTER_MOTOR_1_ID = 15;
         public static final boolean SHOOTER_MOTOR_1_INVERTED = true;

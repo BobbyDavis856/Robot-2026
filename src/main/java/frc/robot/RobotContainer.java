@@ -267,7 +267,7 @@ public class RobotContainer {
 
 		if (!turretHomed) {
 			if (Robot.isReal()) {
-				//CommandScheduler.getInstance().schedule(new HomeTurretCommand());
+				CommandScheduler.getInstance().schedule(new HomeTurretCommand());
 			}
 			turretHomed = true;
 		}

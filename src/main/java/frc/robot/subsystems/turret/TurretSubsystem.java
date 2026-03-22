@@ -95,8 +95,16 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     }
 
     public void setTurretYaw(Angle angle) {
+        double clampedAngle = MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian));
+
+        double targetVelocity = 0;
+        double robotVelocity = RobotContainer.swerveSubsystem.getAngularVelocity().in(RadiansPerSecond);
+        if (angle.in(Radian) > Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian) && angle.in(Radian) < Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian) && Math.abs(robotVelocity) > 0.01) {
+            targetVelocity = robotVelocity;
+        }
+
         turretYawPID.setGoal(
-            MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian))
+            new TrapezoidProfile.State(clampedAngle, targetVelocity)
         );
     }
 
@@ -149,12 +157,16 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     private double calculateTurretYawVoltage() {
         double turretYawVoltage = MathUtil.clamp(
             turretYawPID.calculate(io.getYawRadians()),
-            -0.6,
-            0.6
+            -0.75,
+            0.75
         );
+        
+        //turretYawVoltage = 0;
 
         TrapezoidProfile.State turretYawState = turretYawPID.getSetpoint();
         turretYawVoltage += turretYawFF.calculateWithVelocities(turretPrevYawSetpointVelocity, turretYawState.velocity);
+
+        
         turretYawVoltage = MathUtil.clamp(
             turretYawVoltage, 
             -10.0, 
@@ -231,6 +243,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     resetTurretYaw();
                     requestDesiredState(TurretState.IDLE, 6);
                     transitionTo(TurretState.IDLE);
+                    
                 }
 
                 break;
