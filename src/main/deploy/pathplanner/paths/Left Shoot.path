@@ -44,18 +44,6 @@
       "command": null
     },
     {
-      "name": "TurretAutoAimCommand",
-      "waypointRelativePos": 0.99,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
       "name": "RetractIntakeCommand",
       "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
