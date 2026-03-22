@@ -1,0 +1,73 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left go Neutral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Top Collect Balls"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left go Back"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Shoot Go Back"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left go Neutral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Bottom Collect Balls"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left go Back"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

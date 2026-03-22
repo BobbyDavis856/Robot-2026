@@ -1,0 +1,118 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.755062611806798,
+        "y": 7.320644007150338
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.117996422182468,
+        "y": 7.093488372093023
+      },
+      "isLocked": false,
+      "linkedName": "Left Collection Start"
+    },
+    {
+      "anchor": {
+        "x": 8.30245080500418,
+        "y": 6.752754919499105
+      },
+      "prevControl": {
+        "x": 8.286225402504472,
+        "y": 7.547799642218246
+      },
+      "nextControl": {
+        "x": 8.316028372588802,
+        "y": 6.087454107657206
+      },
+      "isLocked": false,
+      "linkedName": "Left Top Ball Collection Start"
+    },
+    {
+      "anchor": {
+        "x": 8.30245080500418,
+        "y": 4.513649373881932
+      },
+      "prevControl": {
+        "x": 8.302450805008949,
+        "y": 5.065649373881931
+      },
+      "nextControl": {
+        "x": 8.302450804999413,
+        "y": 3.9619856887298734
+      },
+      "isLocked": false,
+      "linkedName": "Left Top Ball Collection End"
+    },
+    {
+      "anchor": {
+        "x": 8.30245080500418,
+        "y": 6.752754919499105
+      },
+      "prevControl": {
+        "x": 8.351127012522362,
+        "y": 6.136189624329159
+      },
+      "nextControl": {
+        "x": 8.264344144688208,
+        "y": 7.235439283454148
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.755062611806798,
+        "y": 7.320644007150338
+      },
+      "prevControl": {
+        "x": 7.036869409660108,
+        "y": 7.174615384615384
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Left Collection Start"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0000000000000016,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 2.0,
+      "rotationDegrees": -90.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "DeployIntakeCommand",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 3.0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Left Auto Paths",
+  "idealStartingState": {
+    "velocity": 3.0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}
