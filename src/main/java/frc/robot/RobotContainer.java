@@ -6,8 +6,10 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -21,19 +23,32 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.climb.ClimbCommand;
+import frc.robot.commands.intake.ActivateIntakeCommand;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
+import frc.robot.commands.intake.ToggleIntakeDeployCommand;
 import frc.robot.commands.kicker.ActivateKickerCommand;
+import frc.robot.commands.spindexer.ActivateSpindexerCommand;
+import frc.robot.commands.turret.ActivateShooterCommand;
 import frc.robot.commands.turret.HomeTurretCommand;
 import frc.robot.commands.turret.ManualAimCommand;
-import frc.robot.commands.turret.ManualAimVotageCommand;
+import frc.robot.commands.turret.ToggleManualCommand;
 import frc.robot.commands.turret.TurretAutoAimCommand;
+import frc.robot.libraries.FieldHelpers;
+import frc.robot.libraries.PoseHelpers;
 import frc.robot.libraries.ProjectileSimulation;
 import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
 import frc.robot.libraries.ProjectileSimulation.TargetSolution;
+import frc.robot.libraries.control.ControllerIO;
+import frc.robot.libraries.control.ControllerIOPS5;
+import frc.robot.libraries.control.ControllerIOXbox;
 import frc.robot.subsystems.climb.ClimbIO;
 import frc.robot.subsystems.climb.ClimbIOReal;
 import frc.robot.subsystems.climb.ClimbSubsystem;
@@ -45,7 +60,11 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightSubsystem;
+import frc.robot.subsystems.lights.LightSubsystem.LightState;
 import frc.robot.subsystems.logging.VisualizerSubsystem;
+import frc.robot.subsystems.spindexer.SpindexerIO;
+import frc.robot.subsystems.spindexer.SpindexerIOReal;
+import frc.robot.subsystems.spindexer.SpindexerSubsystem;
 import frc.robot.subsystems.turret.CalculationSubsystem;
 import frc.robot.subsystems.turret.KickerIO;
 import frc.robot.subsystems.turret.KickerIOReal;
@@ -56,6 +75,7 @@ import frc.robot.subsystems.turret.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretIO;
 import frc.robot.subsystems.turret.TurretIOReal;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.subsystems.vision.LimelightSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -63,7 +83,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
-	public static final CommandXboxController driverController = new CommandXboxController(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOXbox(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
 	// Establishes subsystems
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
@@ -85,6 +105,9 @@ public class RobotContainer {
 	public static final ClimbSubsystem climbSubsystem = new ClimbSubsystem(
 		Constants.ClimbConstants.ENABLED ? new ClimbIOReal() : new ClimbIO() {}
 	);
+	public static final SpindexerSubsystem spindexerSubsystem = new SpindexerSubsystem(
+		Constants.SpindexerConstants.ENABLED ? new SpindexerIOReal() : new SpindexerIO() {}
+	);
 
 	public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
 	public static final VisualizerSubsystem visualizerSubsystem = new VisualizerSubsystem();
@@ -93,29 +116,34 @@ public class RobotContainer {
 	
 	private static SendableChooser<Command> autoChooser;
 
-	// Transforms controller input into swerve drive speeds
-	public static Supplier<ChassisSpeeds> driveAngularVelocity;
-	
+	// Transforms controller input into swerve drive spee
+	public SwerveInputStream swerveInputStream;
+
+	public static boolean rotationalAiming = false;
+	private boolean turretHomed = false;
+
 	public static Command driveFieldOrientedAngularVelocity;
-	public static Command turretAutoAimCommand;
 	
 
 	public RobotContainer() {
 		if (Constants.SwerveConstants.ENABLED) {
-			driveAngularVelocity = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
-					swerveSubsystem.controlXSupplier(),//() -> driverController.getLeftY() * -1,
-					swerveSubsystem.controlYSupplier())//() -> driverController.getLeftX() * -1)
-					.withControllerRotationAxis(
-						swerveSubsystem.controlRotationSupplier())
+			this.swerveInputStream = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
+					driverController.leftXCombinedSupplier(),//() -> driverController.getLeftY() * -1,
+					driverController.leftYCombinedSupplier())//() -> driverController.getLeftX() * -1)
+					.withControllerRotationAxis(driverController.rightXSupplier())
+					.withControllerHeadingAxis(
+						calculationSubsystem.getTargetHeadingX(),
+						calculationSubsystem.getTargetHeadingY()
+					)
+					.deadband(0.0001)
+					.scaleRotation(Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
 					.scaleTranslation(Constants.OperatorConstants.SWERVE_TRANSLATION_SCALE)
+					.headingWhile(() -> {return RobotContainer.rotationalAiming;})
 					.allianceRelativeControl(true);
-			driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(driveAngularVelocity);
-		} else {
-			driveAngularVelocity = () -> new ChassisSpeeds(0.0, 0.0, 0.0);
-		}
+			driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(swerveInputStream);
 
-		if (Constants.TurretConstants.ENABLED) {
-			turretAutoAimCommand = new ManualAimCommand();
+		} else {
+			driveFieldOrientedAngularVelocity = swerveSubsystem.run(() -> {});
 		}
 
 		registerCommands();
@@ -171,6 +199,8 @@ public class RobotContainer {
 		NamedCommands.registerCommand("RetractIntakeCommand", new RetractIntakeCommand());
 		NamedCommands.registerCommand("DeployIntakeCommand", new DeployIntakeCommand());
 
+		NamedCommands.registerCommand("HomeTurretCommand", new HomeTurretCommand());
+
 		NamedCommands.registerCommand("ActivateKickerCommand", new ActivateKickerCommand());
 
 		NamedCommands.registerCommand("ClimbCommand", new ClimbCommand());
@@ -181,14 +211,44 @@ public class RobotContainer {
 			swerveSubsystem.setDefaultCommand(driveFieldOrientedAngularVelocity);
 		}
 
-		turretSubsystem.setDefaultCommand(turretAutoAimCommand);
+		turretSubsystem.setDefaultCommand(new TurretAutoAimCommand());
+
+		driverController.leftStick().toggleOnTrue(new ToggleManualCommand(
+			() -> {return 0.0;}, driverController.rightYSupplier()
+		));
+
+		driverController.rightStick().toggleOnTrue(
+			new InstantCommand(() -> {
+				if (rotationalAiming) {
+					rotationalAiming = false;
+				} else {
+					rotationalAiming = true;
+				}
+			})
+		);
+
+		driverController.rightButton().toggleOnTrue(new ActivateShooterCommand());
+
+		driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
+				new ActivateKickerCommand(),
+				new ActivateSpindexerCommand()
+			)
+		);
+
+		driverController.leftButton().toggleOnTrue(new ToggleIntakeDeployCommand());
+
+		driverController.leftTrigger().whileTrue(new ActivateIntakeCommand());
 	}
 	
 
 	public static boolean isBlueAlliance(){
         var alliance = DriverStation.getAlliance();
-        return alliance.isPresent() ? alliance.get() != DriverStation.Alliance.Red : false;
+        return alliance.isPresent() ? alliance.get() != DriverStation.Alliance.Red : true;
     }
+
+	public static boolean isRedAlliance() {
+		return !isBlueAlliance();
+	}
 
 	public Command getAutonomousCommand() {
 		return autoChooser.getSelected();
@@ -200,6 +260,18 @@ public class RobotContainer {
 		calculationSubsystem.updateAimingPositions();
 
 		calculationSubsystem.startPhysicsSimulation();
+
+		swerveSubsystem.resetOdometry(
+			FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)), isRedAlliance())
+		);
+
+		if (!turretHomed) {
+			if (Robot.isReal()) {
+				CommandScheduler.getInstance().schedule(new HomeTurretCommand());
+			}
+			turretHomed = true;
+		}
+		
 	}
 
 	public void periodic() {
@@ -207,5 +279,16 @@ public class RobotContainer {
 
 		calculationSubsystem.updateBotZone(botPose);
 		calculationSubsystem.updateTrajectoryCalculations(botPose);
+
+		if (calculationSubsystem.getTargetSolutions().errorCode() == TargetErrorCode.NONE) {
+			lightSubsystem.requestDesiredState(LightState.AIM_SUCCESS, 5);
+		} else {
+			lightSubsystem.requestDesiredState(LightState.AIM_ERROR, 5);
+		}
+
+		if (turretSubsystem.getCurrentState() == TurretState.STOWED) {
+			lightSubsystem.requestDesiredState(LightState.AIM_STOWED, 6);
+		}
+		
 	}
 }

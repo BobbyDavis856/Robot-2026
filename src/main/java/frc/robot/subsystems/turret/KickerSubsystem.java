@@ -1,5 +1,7 @@
 package frc.robot.subsystems.turret;
 
+import static edu.wpi.first.units.Units.Volt;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -10,12 +12,15 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.libraries.SubsystemStateMachine;
+import frc.robot.subsystems.turret.CalculationSubsystem.Zone;
 
 public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.turret.KickerSubsystem.KickerState> {
 
     public enum KickerState {
         IDLE,
+        STOWED,
         READY_REVERSE,
         READY,
     }
@@ -30,18 +35,38 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     @Override
     public void periodic() {
+        if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
+            requestDesiredState(KickerState.STOWED, 30);
+        } else {
+            requestDesiredState(KickerState.IDLE, 0); 
+        }
+
         updateDesiredState();
         
         switch (getCurrentState()) {
             case IDLE:
-                if (getDesiredState() == KickerState.READY_REVERSE) {
+                if (getDesiredState() == KickerState.STOWED) {
+                    transitionTo(KickerState.STOWED);
+                } else if (getDesiredState() == KickerState.READY_REVERSE) {
                     transitionTo(KickerState.READY_REVERSE);
                 } else if (getDesiredState() == KickerState.READY) {
                     transitionTo(KickerState.READY);
                 }
                 break;
-            case READY_REVERSE:
+            case STOWED:
                 if (getDesiredState() == KickerState.READY) {
+                    transitionTo(KickerState.READY);
+                } else if (getDesiredState() == KickerState.READY_REVERSE) {
+                    transitionTo(KickerState.READY_REVERSE);
+                } else if (getDesiredState() == KickerState.IDLE) {
+                    transitionTo(KickerState.IDLE);
+                }
+                break;
+
+            case READY_REVERSE:
+                if (getDesiredState() == KickerState.STOWED) {
+                    transitionTo(KickerState.STOWED);
+                } else if (getDesiredState() == KickerState.READY) {
                     transitionTo(KickerState.READY);
                 } else if (getDesiredState() == KickerState.IDLE) {
                     transitionTo(KickerState.IDLE);
@@ -49,7 +74,9 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
                 break;
             case READY:
-                if (getDesiredState() == KickerState.READY_REVERSE) {
+                if (getDesiredState() == KickerState.STOWED) {
+                    transitionTo(KickerState.STOWED);
+                } else if (getDesiredState() == KickerState.READY_REVERSE) {
                     transitionTo(KickerState.READY_REVERSE);
                 } else if (getDesiredState() == KickerState.IDLE) {
                     transitionTo(KickerState.IDLE);
@@ -63,11 +90,14 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
             case IDLE:
                 kickerVoltage = 0.0;
                 break;
+            case STOWED:
+                kickerVoltage = 0.0;
+                break;
             case READY_REVERSE:
-                kickerVoltage = -12;
+                kickerVoltage = -Constants.KickerConstants.KICKER_MOTOR_VOLTAGE.in(Volt);
                 break;
             case READY:
-                kickerVoltage = 12;
+                kickerVoltage = Constants.KickerConstants.KICKER_MOTOR_VOLTAGE.in(Volt);
                 break;
         }
 

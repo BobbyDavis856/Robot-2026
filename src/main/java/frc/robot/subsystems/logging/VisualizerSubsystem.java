@@ -1,5 +1,6 @@
 package frc.robot.subsystems.logging;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radian;
@@ -18,6 +19,8 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.FieldHelpers;
 import frc.robot.libraries.PoseHelpers;
+import frc.robot.subsystems.intake.IntakeDeploymentSubsystem.IntakeDeploymentState;
+import frc.robot.subsystems.turret.ShooterSubsystem.ShooterState;
 
 public class VisualizerSubsystem extends SubsystemBase {
     private final boolean isSimulation = Robot.isSimulation();
@@ -53,7 +56,7 @@ public class VisualizerSubsystem extends SubsystemBase {
 
             Double[] positionHistory = RobotContainer.calculationSubsystem.getProjectileSimulation().simulateLaunch(
                 launchSpeed,
-                RobotContainer.turretSubsystem.getTurretTargetPitch(),
+                Degree.of(90).minus(RobotContainer.turretSubsystem.getTurretTargetPitch()),
                 launchYaw,
                 RadiansPerSecond.of(-(launchSpeed.in(MetersPerSecond) / RobotContainer.calculationSubsystem.getProjectileSimulation().projectileRadius)),
                 RadiansPerSecond.of(0), 
@@ -78,5 +81,7 @@ public class VisualizerSubsystem extends SubsystemBase {
 
             SmartDashboard.putNumberArray("Logging/Trajectory Visualizer", PoseHelpers.convertTranslationArrayToNumbers(globalPositionHistory));
         }
+        SmartDashboard.putBoolean("Shooter/Active", RobotContainer.shooterSubsystem.getDesiredState() == ShooterState.READY);
+        SmartDashboard.putBoolean("Intake Deployment/Deployed", RobotContainer.intakeDeploymentSubsystem.getDesiredState() == IntakeDeploymentState.DEPLOYED);
     }
 }

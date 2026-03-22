@@ -12,11 +12,12 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
 public class TurretIOReal implements TurretIO {
-
+    
     private final SparkMax turretYawMotor; 
     private final RelativeEncoder turretYawEncoder;
     private final AbsoluteEncoder turretYawAbsoluteEncoder;
@@ -24,47 +25,51 @@ public class TurretIOReal implements TurretIO {
     private final double yawConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_YAW_GEAR_RATIO;
     private final double relativeStepSize = (2 * Math.PI) / (Constants.TurretConstants.TURRET_YAW_COUNTS_PER_REV * Constants.TurretConstants.TURRET_YAW_GEAR_RATIO);
     private double yawAbsoluteOffset = 0;
-
-    /*
+    
+    
     private SparkMax turretPitchMotor;
     private RelativeEncoder turretPitchEncoder;
     private SparkMaxConfig turretPitchConfig;
-    */
+    
 
     private final DigitalInput yawHomingSensor;
+    private final Counter yawHomingCounter;
 
     public TurretIOReal() {
         turretYawMotor = new SparkMax(Constants.TurretConstants.TURRET_YAW_MOTOR_ID, MotorType.kBrushless);
-        //turretPitchMotor = new SparkMax(Constants.TurretConstants.TURRET_PITCH_MOTOR_ID, MotorType.kBrushless);
+        turretPitchMotor = new SparkMax(Constants.TurretConstants.TURRET_PITCH_MOTOR_ID, MotorType.kBrushless);
 
         turretYawEncoder = turretYawMotor.getEncoder();
         turretYawAbsoluteEncoder = turretYawMotor.getAbsoluteEncoder();
-        //turretPitchEncoder = turretPitchMotor.getEncoder();
+        turretPitchEncoder = turretPitchMotor.getEncoder();
 
         // Configure motors
+        
+        
         turretYawConfig = new SparkMaxConfig();
         turretYawConfig.inverted(Constants.TurretConstants.TURRET_YAW_MOTOR_INVERTED);
-        turretYawConfig.idleMode(IdleMode.kCoast);
-        
+        turretYawConfig.idleMode(IdleMode.kBrake);
         turretYawConfig.encoder.positionConversionFactor(yawConversionFactor);
         turretYawConfig.encoder.velocityConversionFactor(yawConversionFactor / 60.0);
+        turretYawConfig.signals.primaryEncoderPositionPeriodMs(10);
         turretYawConfig.absoluteEncoder.positionConversionFactor(yawConversionFactor);
         turretYawConfig.absoluteEncoder.inverted(Constants.TurretConstants.TURRET_YAW_ABSOLUTE_ENCODER_INVERTED);
-        turretYawConfig.signals.absoluteEncoderPositionPeriodMs(20);
+        turretYawConfig.signals.absoluteEncoderPositionPeriodMs(10);
         turretYawMotor.configure(turretYawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        /*
+        
+        
         turretPitchConfig = new SparkMaxConfig();
         turretPitchConfig.inverted(Constants.TurretConstants.TURRET_PITCH_MOTOR_INVERTED);
         turretPitchConfig.idleMode(IdleMode.kCoast);
         double pitchConversionFactor = (2.0 * Math.PI) / Constants.TurretConstants.TURRET_PITCH_GEAR_RATIO;
         turretPitchConfig.encoder.positionConversionFactor(pitchConversionFactor);
         turretPitchConfig.encoder.velocityConversionFactor(pitchConversionFactor / 60.0);
-        turretPitchConfig.encoder.inverted(Constants.TurretConstants.TURRET_PITCH_ENCODER_INVERTED);
         turretPitchMotor.configure(turretPitchConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        */
+        
 
         yawHomingSensor = new DigitalInput(Constants.TurretConstants.TURRET_YAW_HOMING_SENSOR_DIO);
+        yawHomingCounter = new Counter(yawHomingSensor);
+        yawHomingCounter.setUpSourceEdge(true,false);
 
         setYawEncoderPosition(turretYawEncoder.getPosition());
     }
@@ -77,19 +82,22 @@ public class TurretIOReal implements TurretIO {
     
     @Override
     public void setPitchMotorVoltage(double voltage) {
-        //turretPitchMotor.setVoltage(voltage);
+        
+        turretPitchMotor.setVoltage(voltage);
     }
     
 
     @Override
     public double getYawRadians() {
+        
         double relativeEncoder = turretYawEncoder.getPosition();
         double absoluteEncoder = MathUtil.inputModulus(turretYawAbsoluteEncoder.getPosition() - yawAbsoluteOffset, 0, yawConversionFactor);
 
         double difference = MathUtil.inputModulus(absoluteEncoder - relativeEncoder, -yawConversionFactor / 2.0, yawConversionFactor / 2.0);
         
         // Two relative encoder tick correction window because at high speeds the relative and absolute can become too desynced
-        difference = MathUtil.clamp(difference, -relativeStepSize * 2.0, relativeStepSize * 2.0);
+        difference = MathUtil.clamp(difference, -relativeStepSize * Constants.TurretConstants.TURRET_YAW_FUSION_MULTIPLIER, relativeStepSize * Constants.TurretConstants.TURRET_YAW_FUSION_MULTIPLIER);
+
 
         return relativeEncoder + difference;
     }
@@ -97,8 +105,7 @@ public class TurretIOReal implements TurretIO {
     
     @Override
     public double getPitchRadians() {
-        return 0.5;
-        //return (Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian) - turretPitchEncoder.getPosition());
+        return (Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radian) + turretPitchEncoder.getPosition());
     }
 
     @Override
@@ -113,15 +120,29 @@ public class TurretIOReal implements TurretIO {
 
     @Override
     public void setYawEncoderPosition(double position) {
+        
         turretYawEncoder.setPosition(position);
 
         double expectedPosition = MathUtil.inputModulus(position, 0, yawConversionFactor);
 
         yawAbsoluteOffset = MathUtil.inputModulus(turretYawAbsoluteEncoder.getPosition() - expectedPosition, -yawConversionFactor / 2.0, yawConversionFactor / 2.0);
+        
     }
 
     @Override
     public boolean getHomingSensor() {
         return !yawHomingSensor.get();
+        //return false;
+    }
+
+    @Override
+    public boolean getHomingCounter() {
+        return yawHomingCounter.get() > 0;
+        //return false;
+    }
+
+    @Override
+    public void resetHomingCounter() {
+        yawHomingCounter.reset();
     }
 }

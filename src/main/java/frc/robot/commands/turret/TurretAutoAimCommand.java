@@ -1,7 +1,10 @@
 package frc.robot.commands.turret;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -22,7 +25,7 @@ import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 public class TurretAutoAimCommand extends Command {
 
     public TurretAutoAimCommand() {
-        addRequirements(RobotContainer.turretSubsystem, RobotContainer.shooterSubsystem);
+        addRequirements(RobotContainer.turretSubsystem);
     }
     
     @Override
@@ -32,8 +35,8 @@ public class TurretAutoAimCommand extends Command {
 
     @Override
     public void execute() {
+        
         RobotContainer.turretSubsystem.requestDesiredState(TurretState.READY, 5);
-        RobotContainer.shooterSubsystem.requestDesiredState(ShooterState.READY, 5);
 
         TargetSolution targetSolution = RobotContainer.calculationSubsystem.getTargetSolutions();
         if (targetSolution.errorCode() == TargetErrorCode.NONE) {
@@ -42,10 +45,11 @@ public class TurretAutoAimCommand extends Command {
             Angle robotRelativeAngle = RobotContainer.turretSubsystem.getTurretPointAngle(targetSolution.launchYaw());
             RobotContainer.turretSubsystem.setTurretYaw(robotRelativeAngle);
 
-            RobotContainer.turretSubsystem.setTurretPitch(targetSolution.launchPitch());
+            RobotContainer.turretSubsystem.setTurretPitch(Degree.of(90).minus(targetSolution.launchPitch()));
 
             AngularVelocity shooterSpeed = RobotContainer.calculationSubsystem.getProjectileSimulation().convertVelocityToShooterSpeed(targetSolution.launchSpeed(), Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5);
 
+            //RobotContainer.shooterSubsystem.setTargetSpeed(RotationsPerSecond.of(16.67 * 3));
             RobotContainer.shooterSubsystem.setTargetSpeed(shooterSpeed);
         }
 
@@ -59,7 +63,6 @@ public class TurretAutoAimCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 0);
-        RobotContainer.shooterSubsystem.requestDesiredState(ShooterState.IDLE, 0);
+        RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 5);
     }
 }

@@ -33,10 +33,10 @@ import edu.wpi.first.wpilibj.util.Color;
 
 public final class Constants {
     public static class SwerveConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
         
-        public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); // File with swerve configs
-        public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(10); // Maximum speed the swerve drive can go
+        public static final File SWERVE_DIRECTORY = new File(Filesystem.getDeployDirectory(), "swerve"); // File with swerve configs.
+        public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(12); // Maximum speed the swerve drive can go
         public static final Angle GYRO_OFFSET = Degree.of(0);
 
         public static final double DRIVE_P = 1;
@@ -45,76 +45,81 @@ public final class Constants {
     }
 
     public final class TurretConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
 
         public static final int TURRET_YAW_MOTOR_ID = 56;
         public static final boolean TURRET_YAW_MOTOR_INVERTED = false;
         public static final boolean TURRET_YAW_ENCODER_INVERTED = false;
         public static final boolean TURRET_YAW_ABSOLUTE_ENCODER_INVERTED = false;
-        public static final double TURRET_YAW_GEAR_RATIO = 142.0 / 13.0; // Rotations of the motor for one rotation of the turret
+        public static final double TURRET_YAW_GEAR_RATIO = 113.0 / 13.0; // Rotations of the motor for one rotation of the turret
         public static final double TURRET_YAW_COUNTS_PER_REV = 42;
-        public static final double TURRET_YAW_P = 4;
-        public static final double TURRET_YAW_I = 0.01;
-        public static final double TURRET_YAW_D = 0.015;
-        public static final Voltage TURRET_YAW_S = Volts.of(0.15);
-        public static final double TURRET_YAW_V = 0.173; // Unit is V/(rad/s)
-        public static final double TURRET_YAW_A = 0.0186; // Unit is V/(rad/s^2)
+        public static final double TURRET_YAW_FUSION_MULTIPLIER = 2.0;
+        public static final double TURRET_YAW_P = 2.25;
+        public static final double TURRET_YAW_I = 0.3;
+        public static final double TURRET_YAW_D = 0.1;
+        public static final Voltage TURRET_YAW_S = Volts.of(0.14);
+        public static final double TURRET_YAW_V = 0.12; // Unit is V/(rad/s)
+        public static final double TURRET_YAW_A = 0.018; // Unit is V/(rad/s^2)
         public static final AngularVelocity TURRET_YAW_MAX_VELOCITY = DegreesPerSecond.of(1440);
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(1800);
-        public static final Angle TURRET_YAW_IZONE = Degree.of(2);
-        public static final int TURRET_YAW_HOMING_SENSOR_DIO = 0;
+        public static final Angle TURRET_YAW_IZONE = Degree.of(5);
+        public static final int TURRET_YAW_HOMING_SENSOR_DIO = 2;
+        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(0.5);
+        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(-0.15);
+    
+        public static final Angle TURRET_YAW_OFFSET = Degree.of(3);
+        public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-180);
+        public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(180);
 
         public static final int TURRET_PITCH_MOTOR_ID = 11;
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
-        public static final boolean TURRET_PITCH_ENCODER_INVERTED = false;
         public static final double TURRET_PITCH_GEAR_RATIO = 160.0 / 14.0; // Rotations of the motor for one rotation of the pitch
         public static final double TURRET_PITCH_ZERO_OFFSET = 0;
-        public static final double TURRET_PITCH_P = 0;
+        public static final double TURRET_PITCH_P = 4;
         public static final double TURRET_PITCH_I = 0;
-        public static final double TURRET_PITCH_D = 0;
-        public static final Voltage TURRET_PITCH_S = Volts.of(0);
-        public static final Voltage TURRET_PITCH_G = Volts.of(0);
-        public static final double TURRET_PITCH_V = 0; // Unit is V/(rad/s)
-        public static final double TURRET_PITCH_A = 0; // Unit is V/(rad/s^2)
-        public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(10);
-        public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(10);
+        public static final double TURRET_PITCH_D = 0.04;
+        public static final Voltage TURRET_PITCH_S = Volts.of(0.1);
+        public static final Voltage TURRET_PITCH_G = Volts.of(0.145);
+        public static final double TURRET_PITCH_V = 0.134; // Unit is V/(rad/s)
+        public static final double TURRET_PITCH_A = 0.019; // Unit is V/(rad/s^2)
+        public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(600);
+        public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(600);
+        public static final Angle TURRET_PITCH_IZONE = Degree.of(5);
 
-        public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(90);
-        public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(45);
-        public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-135);
-        public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(135);
+        public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(40);
+        public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(1);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
             0,
-            0,
+            -0.1,
             0.18
         ); // In meters
         public static final Distance TURRET_PIVOT_FUEL_OFFSET = Meter.of(0.22);
 
-        public static final Angle TURRET_STOWED_PITCH_ANGLE = TURRET_PITCH_UPPER_LIMIT;
+        public static final Angle TURRET_STOWED_PITCH_ANGLE = TURRET_PITCH_LOWER_LIMIT;
     }
 
     public final class ShooterConstants {
         public static final boolean ENABLED = false;
 
         public static final int SHOOTER_MOTOR_1_ID = 15;
-        public static final boolean SHOOTER_MOTOR_1_INVERTED = false;
+        public static final boolean SHOOTER_MOTOR_1_INVERTED = true;
 
         public static final int SHOOTER_MOTOR_2_ID = 16;
-        public static final boolean SHOOTER_MOTOR_2_INVERTED = false;
+        public static final boolean SHOOTER_MOTOR_2_INVERTED = true;
 
         public static final double SHOOTER_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the wheels
 
-        public static final double SHOOTER_P = 0;
+        public static final double SHOOTER_P = 0.1;
         public static final double SHOOTER_I = 0;
         public static final double SHOOTER_D = 0;
-        public static final Voltage SHOOTER_S = Volts.of(0);
-        public static final double SHOOTER_V = 0; // Unit is V/(rotations/s)
-        public static final double SHOOTER_A = 0; // Unit is V/(rotations/s^2)
+        public static final Voltage SHOOTER_S = Volts.of(0.1);
+        public static final double SHOOTER_V = 0.12; // Unit is V/(rotations/s)
+        public static final double SHOOTER_A = 0.05; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
-        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
-        public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(10);
-        public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(100);
-        public static final double SHOOTER_MAX_JERK = 10; // Unit is rotations/s^3
+        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(80);
+        public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(30);
+        public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(400);
+        public static final double SHOOTER_MAX_JERK = 50; // Unit is rotations/s^3
            
     }
     
@@ -124,18 +129,21 @@ public final class Constants {
 
         public static final LEDPattern GREEN = LEDPattern.solid(Color.fromHSV(165, 100, 100));
         public static final LEDPattern RED = LEDPattern.solid(Color.fromHSV(359, 100, 100));
+        public static final LEDPattern ORANGE = LEDPattern.solid(Color.fromHSV(33, 100, 100));
     }
 
     public final class KickerConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
+        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(5);
     }
 
     public final class SpindexerConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
         public static final int SPINDEXER_MOTOR_ID = 29;
-        public static final boolean SPINDEXER_MOTOR_INVERTED = false;
+        public static final boolean SPINDEXER_MOTOR_INVERTED = true;
+        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(1.5);
     }
 
     public final class OperatorConstants {
@@ -151,18 +159,20 @@ public final class Constants {
 
         public static final int INTAKE_DEPLOYMENT_MOTOR_ID = 13;
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED = false;
-        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(6.0);
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(1.0);
 
         public static final int INTAKE_MOTOR_ID = 14;
         public static final boolean INTAKE_MOTOR_INVERTED = false;
+        public static final Voltage INTAKE_MOTOR_VOLTAGE = Volt.of(9);
 
-        public static final int INTAKE_RETRACTED_SENSOR_DIO = 15;
-        public static final int INTAKE_DEPLOYED_SENSOR_DIO = 16;
+        public static final int INTAKE_RETRACTED_SENSOR_DIO = 0;
+        public static final int INTAKE_DEPLOYED_SENSOR_DIO = 1;
     }
 
     public final class ClimbConstants {
         public static final boolean ENABLED = false;
         public static final int CLIMB_MOTOR_ID = 10;
+        public static final Voltage CLIMB_MOTOR_VOLTAGE = Volt.of(10);
 
         public static final int CLIMB_SENSOR_DIO = 5;
     }

@@ -43,15 +43,13 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
     private double shooterPrevSetpointVelocity = 0;
 
     public ShooterSubsystem(ShooterIO io) {
-        super(ShooterState.IDLE, ShooterState.IDLE);
+        super(ShooterState.IDLE, null);
 
         this.io = io;
     }
 
     public void setTargetSpeed(AngularVelocity speed) {
         shooterPID.setGoal(speed.in(RotationsPerSecond));
-
-        SmartDashboard.putNumber("Shooter/Target Speed", speed.in(RotationsPerSecond) * 60.0);
     }
 
     public AngularVelocity getTargetSpeed() {
@@ -140,6 +138,8 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
 
         SmartDashboard.putNumber("Shooter/Motor 1 Speed", io.getMotor1RPS() * 60.0);
         SmartDashboard.putNumber("Shooter/Motor 2 Speed", io.getMotor2RPS() * 60.0);
+
+        SmartDashboard.putNumber("Shooter/Target Speed", getTargetSpeed().in(RotationsPerSecond) * 60);
 
         SmartDashboard.putString("Shooter/Current State", getCurrentState().name());
         SmartDashboard.putString("Shooter/Desired State", getDesiredState().name());

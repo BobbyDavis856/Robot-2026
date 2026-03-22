@@ -25,7 +25,7 @@ public class IntakeDeploymentIOReal implements IntakeDeploymentIO {
         intakeDeploymentMotor = new SparkMax(Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_ID, MotorType.kBrushless);
 
         intakeDeploymentConfig = new SparkMaxConfig();
-        intakeDeploymentConfig.idleMode(IdleMode.kBrake);
+        intakeDeploymentConfig.idleMode(IdleMode.kCoast);
         intakeDeploymentConfig.inverted(Constants.IntakeConstants.INTAKE_DEPLOYMENT_MOTOR_INVERTED);
         intakeDeploymentConfig.smartCurrentLimit(20);
         intakeDeploymentMotor.configure(intakeDeploymentConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

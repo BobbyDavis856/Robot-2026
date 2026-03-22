@@ -3,6 +3,7 @@ package frc.robot.subsystems.vision;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.numbers.N1;
@@ -17,7 +18,7 @@ public class LimelightSubsystem extends SubsystemBase {
     
     private LimelightHelpers.PoseEstimate limelightMeasurement;
 
-    private static final Matrix<N3, N1> visionStandardDevs = VecBuilder.fill(.5, .5, 9999999);
+    private static final Matrix<N3, N1> visionStandardDevs = VecBuilder.fill(.5, .5, 0.5);
 
     public LimelightSubsystem() {
 
@@ -29,12 +30,12 @@ public class LimelightSubsystem extends SubsystemBase {
     }
 
     public void getVisionEstimate() {
-        double robotAngle = RobotContainer.swerveSubsystem.getPose2d().getRotation().getDegrees();
+        double robotAngle = RobotContainer.swerveSubsystem.getAngle().in(Degree);
 
         LimelightHelpers.SetRobotOrientation("limelight", robotAngle, RobotContainer.swerveSubsystem.getAngularVelocity().in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
 
-        limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-
+        limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+        
         try {
             if (limelightMeasurement != null && limelightMeasurement.pose != null) {
                 if (limelightMeasurement.tagCount > 0) {

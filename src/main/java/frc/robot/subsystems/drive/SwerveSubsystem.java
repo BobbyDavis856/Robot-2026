@@ -26,11 +26,13 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import swervelib.SwerveDrive;
+import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
@@ -65,9 +67,9 @@ public class SwerveSubsystem extends SubsystemBase{
 
             swerveDrive.setAngularVelocityCompensation(true, true, 0.1);
             swerveDrive.chassisVelocityCorrection = true;
+
             swerveDrive.setChassisDiscretization(true, 0.02);
             swerveDrive.setGyroOffset(gyroOffset);
-
 
             RobotConfig config;
             try {
@@ -88,69 +90,12 @@ public class SwerveSubsystem extends SubsystemBase{
                     new PIDConstants(swerveDrive.swerveController.config.headingPIDF.p, swerveDrive.swerveController.config.headingPIDF.i, swerveDrive.swerveController.config.headingPIDF.d)
                 ),
                 config, 
-                () -> {
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
+                RobotContainer::isRedAlliance,
                 this
             );
 
-            swerveDrive.stopOdometryThread();
+            //swerveDrive.stopOdometryThread();
         }
-    }
-
-    public DoubleSupplier controlXSupplier() {
-        return () -> {
-            double leftY = -RobotContainer.driverController.getLeftY();
-            double leftX = -RobotContainer.driverController.getLeftX();
-            double magnitude = Math.min(1.0, Math.hypot(leftX, leftY));
-
-            if (magnitude <= Constants.OperatorConstants.DEADBAND) {
-                return 0;
-            }
-
-            double mappedMagnitude = (magnitude - Constants.OperatorConstants.DEADBAND) / (1.0 - Constants.OperatorConstants.DEADBAND);
-
-            double curvedMagnitude = Math.abs(Math.pow(mappedMagnitude, Constants.OperatorConstants.SWERVE_EXPONENT));
-            return (leftY / magnitude) * curvedMagnitude;
-        };
-    }
-
-    public DoubleSupplier controlYSupplier() {
-        return () -> {
-            double leftY = -RobotContainer.driverController.getLeftY();
-            double leftX = -RobotContainer.driverController.getLeftX();
-            double magnitude = Math.min(1.0, Math.hypot(leftX, leftY));
-
-            if (magnitude <= Constants.OperatorConstants.DEADBAND) {
-                return 0;
-            }
-
-            double mappedMagnitude = (magnitude - Constants.OperatorConstants.DEADBAND) / (1.0 - Constants.OperatorConstants.DEADBAND);
-
-            double curvedMagnitude = Math.abs(Math.pow(mappedMagnitude, Constants.OperatorConstants.SWERVE_EXPONENT));
-            return (leftX / magnitude) * curvedMagnitude;
-        };
-    }
-
-    public DoubleSupplier controlRotationSupplier() {
-        return () -> {
-            double turn = -RobotContainer.driverController.getRightX();
-
-            if (Math.abs(turn) <= Constants.OperatorConstants.DEADBAND) {
-                return 0;
-            }
-
-            double mappedTurn = (Math.abs(turn) - Constants.OperatorConstants.DEADBAND) / (1.0 - Constants.OperatorConstants.DEADBAND);
-
-            double curvedTurn = Math.abs(Math.pow(mappedTurn, Constants.OperatorConstants.SWERVE_EXPONENT));
-
-            return curvedTurn * Math.signum(turn) * Constants.OperatorConstants.SWERVE_ROTATION_SCALE;
-
-        };
     }
 
     public void resetOdometry(Pose2d initialPose) {
@@ -159,9 +104,24 @@ public class SwerveSubsystem extends SubsystemBase{
         }
     }
 
+    public void resetOdometry(Translation2d initialTranslation) {
+        resetOdometry(
+            new Pose2d(
+                initialTranslation,
+                Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 180 : 0)
+            )
+        );
+    }
+
     public void zeroGyro() {
         if (Constants.SwerveConstants.ENABLED) {
-            swerveDrive.zeroGyro();
+
+            swerveDrive.resetOdometry(
+                new Pose2d(
+                    swerveDrive.getPose().getTranslation(),
+                    Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 180 : 0)
+                )
+            );
             System.out.println("Zeroed Swerve");
         }
     }
@@ -261,7 +221,8 @@ public class SwerveSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-        RobotContainer.limelightSubsystem.getVisionEstimate();
-        swerveDrive.updateOdometry();
+        if (Constants.SwerveConstants.ENABLED == true) {
+            RobotContainer.limelightSubsystem.getVisionEstimate();
+        }
     }
 }

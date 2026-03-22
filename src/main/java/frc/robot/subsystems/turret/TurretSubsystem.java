@@ -1,5 +1,6 @@
 package frc.robot.subsystems.turret;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
@@ -35,6 +36,12 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         MANUAL
     }
 
+    private enum HomingStage {
+        SEARCHING,
+        REFINING_START,
+        REFINING_END
+    }
+
     private final TurretIO io;
 
     
@@ -63,21 +70,19 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
             Constants.TurretConstants.TURRET_PITCH_MAX_ACCELERATION.in(RadiansPerSecondPerSecond)
         )
     );
-    private final ArmFeedforward turretPitchFF = new ArmFeedforward(
+    private final SimpleMotorFeedforward turretPitchFF = new SimpleMotorFeedforward(
         Constants.TurretConstants.TURRET_PITCH_S.in(Volts),
-        Constants.TurretConstants.TURRET_PITCH_G.in(Volts),
         Constants.TurretConstants.TURRET_PITCH_V, // Unit is V/(rad/s)
         Constants.TurretConstants.TURRET_PITCH_A // Unit is V/(rad/s^2)
     );
     private double turretPrevPitchSetpointVelocity = 0;
 
-    private double turretManualYawVoltage = 0;
-    private double turretManualPitchVoltage = 0;
+    private Angle turretManualYaw = Degree.of(0);
+    private Angle turretManualPitch = Degree.of(0);
 
     private double turretStowedYawAngle = 0;
 
-    private boolean turretHomeingStartedActive = false;
-    private boolean turretHomingSeenZero = false;
+    private HomingStage turretHomingStage = HomingStage.SEARCHING;
     private double turretHomingStart = 0;
 
     public TurretSubsystem(TurretIO io) {
@@ -86,11 +91,20 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         this.io = io;
 
         turretYawPID.setIZone(Constants.TurretConstants.TURRET_YAW_IZONE.in(Radian));
+        turretPitchPID.setIZone(Constants.TurretConstants.TURRET_PITCH_IZONE.in(Radian));
     }
 
     public void setTurretYaw(Angle angle) {
+        double clampedAngle = MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian));
+
+        double targetVelocity = 0;
+        double robotVelocity = RobotContainer.swerveSubsystem.getAngularVelocity().in(RadiansPerSecond);
+        if (angle.in(Radian) > Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian) && angle.in(Radian) < Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian) && Math.abs(robotVelocity) > 0.01) {
+            targetVelocity = robotVelocity;
+        }
+
         turretYawPID.setGoal(
-            MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian))
+            new TrapezoidProfile.State(clampedAngle, targetVelocity)
         );
     }
 
@@ -118,7 +132,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     public Angle getTurretPointAngle(Angle globalAngle) {
         return Radian.of(
-            MathUtil.angleModulus(globalAngle.in(Radian) - RobotContainer.swerveSubsystem.getPose2d().getRotation().getRadians())
+            MathUtil.angleModulus(RobotContainer.swerveSubsystem.getPose2d().getRotation().getRadians() - globalAngle.in(Radian) + Math.PI)
         );
     }
 
@@ -135,16 +149,24 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     }
 
     private void resetTurretHoming() {
-        turretHomeingStartedActive = io.getHomingSensor();
-        turretHomingSeenZero = false;
+        turretHomingStage = HomingStage.SEARCHING;
         turretHomingStart = 0;
+        io.resetHomingCounter();
     }
 
     private double calculateTurretYawVoltage() {
-        double turretYawVoltage = turretYawPID.calculate(io.getYawRadians());
+        double turretYawVoltage = MathUtil.clamp(
+            turretYawPID.calculate(io.getYawRadians()),
+            -0.75,
+            0.75
+        );
+        
+        //turretYawVoltage = 0;
 
         TrapezoidProfile.State turretYawState = turretYawPID.getSetpoint();
         turretYawVoltage += turretYawFF.calculateWithVelocities(turretPrevYawSetpointVelocity, turretYawState.velocity);
+
+        
         turretYawVoltage = MathUtil.clamp(
             turretYawVoltage, 
             -10.0, 
@@ -155,11 +177,16 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         return turretYawVoltage;
     }
 
-    private double caclulateTurretPitchVoltage() {
-        double turretPitchVoltage = turretPitchPID.calculate(io.getPitchRadians());
-
+    private double calculateTurretPitchVoltage() {
+        double turretPitchVoltage = MathUtil.clamp(
+            turretPitchPID.calculate(io.getPitchRadians()),
+            -0.3,
+            0.3
+        );
+        
         TrapezoidProfile.State turretPitchState = turretPitchPID.getSetpoint();
-        turretPitchVoltage += turretPitchFF.calculateWithVelocities(turretPitchState.position, turretPrevPitchSetpointVelocity, turretPitchState.velocity);
+        turretPitchVoltage += turretPitchFF.calculateWithVelocities( turretPrevPitchSetpointVelocity, turretPitchState.velocity);
+        turretPitchVoltage += Math.cos(turretPitchState.position) * Constants.TurretConstants.TURRET_PITCH_G.in(Volt);
         turretPitchVoltage = MathUtil.clamp(
             turretPitchVoltage, 
             -10.0, 
@@ -170,23 +197,25 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         return turretPitchVoltage;
     }
 
-    public void setOverrideVoltages(Voltage yawVoltage, Voltage pitchVoltage) {
-        turretManualYawVoltage = yawVoltage.in(Volt);
-        turretManualPitchVoltage = pitchVoltage.in(Volt);
+    public void setOverrideAngles(Angle yaw, Angle pitch) {
+        turretManualYaw = yaw;
+        turretManualPitch = pitch;
     }
 
     @Override
     public void periodic() {
-        updateDesiredState();
-
         if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
             requestDesiredState(TurretState.STOWED, 30);
+        } else {
+            requestDesiredState(TurretState.IDLE, 0);
         }
 
         // Safety Check as the desired state should only ever IDLE, HOMING, STOWED, READY, or MANUAL
         if (getDesiredState() == TurretState.AIMING) {
             requestDesiredState(TurretState.IDLE, 6);
         }
+
+        updateDesiredState();
 
         switch (getCurrentState()) {
             case IDLE:
@@ -208,13 +237,13 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
                 break;
             case HOMING:
-                if (io.getHomingSensor() == false && turretHomingSeenZero) {
-                    io.setYawEncoderPosition((io.getYawRadians() - turretHomingStart));
+                if (io.getHomingSensor() == false && turretHomingStage == HomingStage.REFINING_END) {
+                    io.setYawEncoderPosition((io.getYawRadians() - turretHomingStart + Constants.TurretConstants.TURRET_YAW_OFFSET.in(Radian)));
                     resetTurretPitch();
-                    turretYawPID.reset(0);
-                    turretPrevYawSetpointVelocity = 0;
-                    requestDesiredState(TurretState.IDLE, 0);
+                    resetTurretYaw();
+                    requestDesiredState(TurretState.IDLE, 6);
                     transitionTo(TurretState.IDLE);
+                    
                 }
 
                 break;
@@ -296,22 +325,21 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 break;
                 
             case HOMING:
-                if (turretHomeingStartedActive) {
-                    turretYawVoltage = -0.5;
+                if (turretHomingStage == HomingStage.SEARCHING) {
+                    turretYawVoltage = Constants.TurretConstants.TURRET_YAW_HOMING_SEARCHING_VOLTAGE.in(Volt);
+                    if (io.getHomingCounter()) {
+                        turretHomingStage = HomingStage.REFINING_START;
+                    }
                 } else {
-                    turretYawVoltage = 0.4;
+                    turretYawVoltage = Constants.TurretConstants.TURRET_YAW_HOMING_REFINING_VOLTAGE.in(Volt);
+                    if (io.getHomingSensor() && turretHomingStage == HomingStage.REFINING_START) {
+                        turretHomingStart = io.getYawRadians();
+                        turretHomingStage = HomingStage.REFINING_END;
+                    }
                 }
                 
                 turretPitchVoltage = 0.0;
-                if (io.getHomingSensor()) {
-                    if (!turretHomingSeenZero && !turretHomeingStartedActive) {
-                        turretHomingSeenZero = true;
-                        turretHomingStart = io.getYawRadians();
-                    }
-                } else {
-                    turretHomeingStartedActive = false;
-                }
-
+                
                 break;
 
             case STOWED:
@@ -320,19 +348,21 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                 setTurretYaw(Radian.of(turretStowedYawAngle));
 
                 turretYawVoltage = calculateTurretYawVoltage();
-                turretPitchVoltage = caclulateTurretPitchVoltage();
+                turretPitchVoltage = calculateTurretPitchVoltage();
                 break;
             case AIMING:
                 turretYawVoltage = calculateTurretYawVoltage();
-                turretPitchVoltage = caclulateTurretPitchVoltage();
+                turretPitchVoltage = calculateTurretPitchVoltage();
                 break;
             case READY:
                 turretYawVoltage = calculateTurretYawVoltage();
-                turretPitchVoltage = caclulateTurretPitchVoltage();
+                turretPitchVoltage = calculateTurretPitchVoltage();
                 break;
             case MANUAL:
-                turretYawVoltage = turretManualYawVoltage;
-                turretPitchVoltage = turretManualPitchVoltage;
+                setTurretYaw(turretManualYaw);
+                setTurretPitch(turretManualPitch);
+                turretYawVoltage = calculateTurretYawVoltage();
+                turretPitchVoltage = calculateTurretPitchVoltage();
                 break;
 
         }
@@ -359,5 +389,6 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         SmartDashboard.putNumber("Turret/Target Pitch", turretPitchPID.getGoal().position * (180 / Math.PI));
 
         SmartDashboard.putBoolean("Turret/Homing Sensor", io.getHomingSensor());
+        SmartDashboard.putBoolean("Turret/Homing Counter", io.getHomingCounter());
     }
 }
