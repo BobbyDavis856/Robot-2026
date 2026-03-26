@@ -64,8 +64,8 @@ public final class Constants {
         public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(1800);
         public static final Angle TURRET_YAW_IZONE = Degree.of(5);
         public static final int TURRET_YAW_HOMING_SENSOR_DIO = 2;
-        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(0.5);
-        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(-0.15);
+        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(-0.5);
+        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(0.15);
     
         public static final Angle TURRET_YAW_OFFSET = Degree.of(3);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-180);
