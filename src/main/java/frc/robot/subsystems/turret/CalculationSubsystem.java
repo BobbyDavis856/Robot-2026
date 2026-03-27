@@ -123,7 +123,6 @@ public class CalculationSubsystem {
         
         if (allianceZone[0].getX() <= botPose.getX() && allianceZone[0].getY() <= botPose.getY() &&
             allianceZone[1].getX() >= botPose.getX() && allianceZone[1].getY() >= botPose.getY()) {
-            
             botZone = Zone.ALLIANCE;
         } else {
             if (botPose.getY() > (Constants.FieldConstants.FIELD_SIZE_Y.in(Meter) / 2.0)) {
@@ -160,7 +159,11 @@ public class CalculationSubsystem {
         ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
 
         setTargetInputs(new TargetInput(
-            getProjectileSimulation().convertShooterSpeedToVelocity(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY, Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS, 0.5),
+            getProjectileSimulation().convertShooterSpeedToVelocity(
+                Constants.ShooterConstants.SHOOTER_MAX_VELOCITY,
+                Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS,
+                Constants.FuelPhysicsConstants.EFFICENCY
+            ),
             DegreesPerSecond.of(0),
             new Translation2d(
                 fieldSpeeds.vxMetersPerSecond,
@@ -176,6 +179,7 @@ public class CalculationSubsystem {
         SmartDashboard.putNumberArray("Auto Aim/Target Position", PoseHelpers.convertTranslationToNumbers(targetPosition));
         SmartDashboard.putString("Auto Aim/Error Code", lastSolution.errorCode().name());
         SmartDashboard.putString("Auto Aim/Solution Debug", lastSolution.targetDebug().toString());
+        SmartDashboard.putNumber("Auto Aim/Timestamp", lastSolution.timestamp().in(Second));
         SmartDashboard.putBoolean("Auto Aim/Error", lastSolution.errorCode() != TargetErrorCode.NONE);
     }
 

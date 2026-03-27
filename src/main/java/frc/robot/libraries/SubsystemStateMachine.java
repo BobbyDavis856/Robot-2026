@@ -4,18 +4,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class SubsystemStateMachine<E extends Enum<E>> extends SubsystemBase {
-
-    protected E currentState;
-    protected E desiredState;
-
-    protected E overrideState;
-
-    protected E defaultState;
-
-    protected int pendingPriority = -1;
-    protected E pendingState;
-
-    protected final Timer stateTimer = new Timer();
+    private final StateMachine<E> stateMachine;
 
     /**
      * 
@@ -23,22 +12,11 @@ public abstract class SubsystemStateMachine<E extends Enum<E>> extends Subsystem
      * @param defaultState The state to transition to if no state requests have been made in a tick. If null then it will stay on the last desired state.
      */
     public SubsystemStateMachine(E startingState, E defaultState) {
-        this.currentState = startingState;
-        this.desiredState = startingState;
-
-        this.defaultState = defaultState;
-
-        if (this.defaultState != null) {
-            this.pendingState = this.defaultState;
-        } else {
-            this.pendingState = startingState;
-        }
-
-        this.stateTimer.restart();
+        stateMachine = new StateMachine<E>(startingState, defaultState);
     }
 
     public E getCurrentState() {
-        return currentState;
+        return stateMachine.getCurrentState();
     }
 
     /**
@@ -54,49 +32,34 @@ public abstract class SubsystemStateMachine<E extends Enum<E>> extends Subsystem
      * </ul>
      */
     public void requestDesiredState(E newState, int priority) {
-        if (newState == null) {
-            return;
-        }
-
-        if (priority >= pendingPriority) {
-            this.pendingPriority = priority;
-            this.pendingState = newState;
-        }
+        stateMachine.requestDesiredState(newState, priority);
     }
 
     public E getDesiredState() {
-        if (this.overrideState != null) {
-            return this.overrideState;
-        }
-
-        return this.desiredState;
+        return stateMachine.getDesiredState();
     }
 
     public double getStateTimer() {
-        return this.stateTimer.get();
+        return stateMachine.getStateTimer();
     }
 
     public void restartStateTimer() {
-        this.stateTimer.restart();
+        stateMachine.restartStateTimer();
     }
 
     public void setOverrideState(E overrideState) {
-        this.overrideState = overrideState;
-        if (this.overrideState != null) {
-            transitionTo(this.overrideState);
-        }
-        
+        stateMachine.setOverrideState(overrideState);
     }
 
     public E getOverrideState() {
-        return this.overrideState;
+        return stateMachine.getOverrideState();
     }
 
     /**
      * Transitions the current state to the desired state
      **/
     protected void transitionTo() {
-        transitionTo(getDesiredState());
+        stateMachine.transitionTo();
     }
 
     /**
@@ -105,25 +68,13 @@ public abstract class SubsystemStateMachine<E extends Enum<E>> extends Subsystem
      * @param newState The state to transition too
      **/
     protected void transitionTo(E newState) {
-        if (this.overrideState != newState && this.overrideState != null) {
-            return;
-        }
-
-        if (newState != currentState && newState != null) {
-            this.currentState = newState;
-            
-            this.stateTimer.restart();
-        }
+        stateMachine.transitionTo(newState);
     }
 
     /**
      * MUST BE CALLED AT THE START OF EVERY PERIODIC LOOP
      **/
     protected void updateDesiredState() {
-        if (pendingState != null) {
-            this.desiredState = this.pendingState;
-        }
-        this.pendingPriority = -1;
-        this.pendingState = this.defaultState;
+        stateMachine.updateDesiredState();
     }
 }

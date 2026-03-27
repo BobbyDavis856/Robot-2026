@@ -5,4 +5,6 @@ public interface ShooterIO {
 
     default double getMotor1RPS() {return 0;}
     default double getMotor2RPS() {return 0;}
+
+    default void setClosedVelocity(double targetRPS) {}
 }

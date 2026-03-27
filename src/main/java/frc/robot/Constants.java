@@ -1,5 +1,6 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
@@ -21,6 +22,7 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -54,20 +56,20 @@ public final class Constants {
         public static final double TURRET_YAW_GEAR_RATIO = 113.0 / 13.0; // Rotations of the motor for one rotation of the turret
         public static final double TURRET_YAW_COUNTS_PER_REV = 42;
         public static final double TURRET_YAW_FUSION_MULTIPLIER = 2.0;
-        public static final double TURRET_YAW_P = 2.25;
-        public static final double TURRET_YAW_I = 0.3;
+        public static final double TURRET_YAW_P = 2.6;
+        public static final double TURRET_YAW_I = 0.4;
         public static final double TURRET_YAW_D = 0.1;
         public static final Voltage TURRET_YAW_S = Volts.of(0.14);
         public static final double TURRET_YAW_V = 0.12; // Unit is V/(rad/s)
         public static final double TURRET_YAW_A = 0.018; // Unit is V/(rad/s^2)
-        public static final AngularVelocity TURRET_YAW_MAX_VELOCITY = DegreesPerSecond.of(1440);
-        public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(1800);
+        public static final AngularVelocity TURRET_YAW_MAX_VELOCITY = DegreesPerSecond.of(2000);
+        public static final AngularAcceleration TURRET_YAW_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(2400);
         public static final Angle TURRET_YAW_IZONE = Degree.of(5);
         public static final int TURRET_YAW_HOMING_SENSOR_DIO = 2;
-        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(0.5);
-        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(-0.15);
+        public static final Voltage TURRET_YAW_HOMING_SEARCHING_VOLTAGE = Volt.of(-0.5);
+        public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(0.15);
     
-        public static final Angle TURRET_YAW_OFFSET = Degree.of(3);
+        public static final Angle TURRET_YAW_OFFSET = Degree.of(-3);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-180);
         public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(180);
 
@@ -75,12 +77,12 @@ public final class Constants {
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
         public static final double TURRET_PITCH_GEAR_RATIO = 160.0 / 14.0; // Rotations of the motor for one rotation of the pitch
         public static final double TURRET_PITCH_ZERO_OFFSET = 0;
-        public static final double TURRET_PITCH_P = 4;
+        public static final double TURRET_PITCH_P = 5;
         public static final double TURRET_PITCH_I = 0;
         public static final double TURRET_PITCH_D = 0.04;
         public static final Voltage TURRET_PITCH_S = Volts.of(0.1);
         public static final Voltage TURRET_PITCH_G = Volts.of(0.145);
-        public static final double TURRET_PITCH_V = 0.134; // Unit is V/(rad/s)
+        public static final double TURRET_PITCH_V = 0.135; // Unit is V/(rad/s)
         public static final double TURRET_PITCH_A = 0.019; // Unit is V/(rad/s^2)
         public static final AngularVelocity TURRET_PITCH_MAX_VELOCITY = DegreesPerSecond.of(600);
         public static final AngularAcceleration TURRET_PITCH_MAX_ACCELERATION = DegreesPerSecondPerSecond.of(600);
@@ -89,8 +91,8 @@ public final class Constants {
         public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(40);
         public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(1);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
+            0.0,
             0,
-            -0.1,
             0.18
         ); // In meters
         public static final Distance TURRET_PIVOT_FUEL_OFFSET = Meter.of(0.22);
@@ -99,7 +101,7 @@ public final class Constants {
     }
 
     public final class ShooterConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
 
         public static final int SHOOTER_MOTOR_1_ID = 15;
         public static final boolean SHOOTER_MOTOR_1_INVERTED = true;
@@ -109,11 +111,11 @@ public final class Constants {
 
         public static final double SHOOTER_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the wheels
 
-        public static final double SHOOTER_P = 0.1;
+        public static final double SHOOTER_P = 0.01;
         public static final double SHOOTER_I = 0;
         public static final double SHOOTER_D = 0;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
-        public static final double SHOOTER_V = 0.12; // Unit is V/(rotations/s)
+        public static final double SHOOTER_V = 0.127; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.05; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
         public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(80);
@@ -137,6 +139,7 @@ public final class Constants {
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
         public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(5);
+        public static final Current KICKER_STALL_CURRENT = Amp.of(20);
     }
 
     public final class SpindexerConstants {
@@ -144,6 +147,7 @@ public final class Constants {
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = true;
         public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(1.5);
+        public static final Current SPINDEXER_STALL_CURRENT = Amp.of(20);
     }
 
     public final class OperatorConstants {
@@ -155,15 +159,16 @@ public final class Constants {
     }
 
     public final class IntakeConstants {
-        public static final boolean ENABLED = false;
+        public static final boolean ENABLED = true;
 
         public static final int INTAKE_DEPLOYMENT_MOTOR_ID_1 = 13;
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED_1 = false;
 
         public static final int INTAKE_DEPLOYMENT_MOTOR_ID_2 = 17;
-        public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED_2 = false;
+        public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED_2 = true;
 
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(1.0);
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE = Volt.of(0.2);
 
         public static final int INTAKE_MOTOR_ID = 14;
         public static final boolean INTAKE_MOTOR_INVERTED = false;
@@ -184,9 +189,10 @@ public final class Constants {
     public final class FuelPhysicsConstants {
         public static final int TPS = 20;
         public static final int MAX_STEPS = 15;
-        public static final double DRAG_CONSTANT = 0.5;
+        public static final double DRAG_CONSTANT = 0.55;
+        public static final double EFFICENCY = 0.39;
         public static final double ROT_DRAG_CONSTANT = 0.05;
-        public static final double LIFT_CONSTANT = 0.4;
+        public static final double LIFT_CONSTANT = 0.35;
         public static final double CROSS_SECTION_AREA = 0.01767;
         public static final Mass MASS = Pound.of(0.5);
         public static final double FLUID_DENSITY = 1.2754;
@@ -198,7 +204,7 @@ public final class Constants {
         public static final Distance FIELD_SIZE_Y = Meter.of(8.07);
         public static final Distance HUB_SIDE_DISTANCE = Meter.of(4.62344);
         public static final Distance HUB_TARGET_HEIGHT = Meter.of(1.9);
-        public static final Distance PASS_SIDE_DISTANCE = Meter.of(3.25);
+        public static final Distance PASS_SIDE_DISTANCE = Meter.of(2);
         public static final Distance PASS_OFFSET = Meter.of(2);
         public static final Distance TRENCH_OFFSET = Meter.of(3);
         public static final Distance TRENCH_RADIUS = Meter.of(1);

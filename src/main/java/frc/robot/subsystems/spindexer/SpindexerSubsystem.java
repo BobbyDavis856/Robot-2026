@@ -1,7 +1,9 @@
 package frc.robot.subsystems.spindexer;
 
+import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Volt;
 
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -24,6 +26,10 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
         super(SpindexerState.IDLE, SpindexerState.IDLE);
 
         this.io = io;
+    }
+
+    public Current getMotorCurrent() {
+        return Amp.of(io.getMotorCurrent());
     }
 
     @Override
@@ -91,7 +97,6 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
                 break;
             case READY:
                 spindexerVoltage = Constants.SpindexerConstants.SPINDEXER_MOTOR_VOLTAGE.in(Volt);
-                
                 break;
         }
 

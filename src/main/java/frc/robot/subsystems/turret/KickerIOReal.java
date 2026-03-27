@@ -28,4 +28,9 @@ public class KickerIOReal implements KickerIO {
     public void setMotorVoltage(double voltage) {
         kickerMotor.setVoltage(voltage);
     }
+
+    @Override
+    public double getMotorCurrent() {
+        return kickerMotor.getOutputCurrent();
+    }
 }

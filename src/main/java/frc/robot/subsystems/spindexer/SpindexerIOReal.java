@@ -27,4 +27,9 @@ public class SpindexerIOReal implements SpindexerIO {
     public void setMotorVoltage(double voltage) {
         spindexerMotor.setVoltage(voltage);
     }
+
+    @Override
+    public double getMotorCurrent() {
+        return spindexerMotor.getOutputCurrent();
+    }
 }

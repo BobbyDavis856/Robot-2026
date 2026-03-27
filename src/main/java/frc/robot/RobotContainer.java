@@ -36,10 +36,14 @@ import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
 import frc.robot.commands.intake.ToggleIntakeDeployCommand;
 import frc.robot.commands.kicker.ActivateKickerCommand;
+import frc.robot.commands.kicker.ReverseKickerCommand;
+import frc.robot.commands.smart.SmartShootCommand;
 import frc.robot.commands.spindexer.ActivateSpindexerCommand;
+import frc.robot.commands.spindexer.ReverseSpindexerCommand;
 import frc.robot.commands.turret.ActivateShooterCommand;
 import frc.robot.commands.turret.HomeTurretCommand;
 import frc.robot.commands.turret.ManualAimCommand;
+import frc.robot.commands.turret.ManualStowTurretCommand;
 import frc.robot.commands.turret.ToggleManualCommand;
 import frc.robot.commands.turret.TurretAutoAimCommand;
 import frc.robot.libraries.FieldHelpers;
@@ -84,7 +88,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
-	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOXbox(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
 	// Establishes subsystems
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
@@ -235,11 +239,24 @@ public class RobotContainer {
 
 		driverController.rightButton().toggleOnTrue(new ActivateShooterCommand());
 
+		driverController.menuButton().onTrue(RobotContainer.swerveSubsystem.zeroGyroCommand());
+
+		driverController.leftBumper().toggleOnTrue(new ManualStowTurretCommand());
+
+		/*
 		driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
 				new ActivateKickerCommand(),
 				new ActivateSpindexerCommand()
 			)
 		);
+
+		driverController.rightBumper().whileTrue(new ParallelCommandGroup(
+				new ReverseKickerCommand(),
+				new ReverseSpindexerCommand()
+			)
+		);
+		*/
+		driverController.rightTrigger().whileTrue(new SmartShootCommand());
 
 		driverController.leftButton().toggleOnTrue(new ToggleIntakeDeployCommand());
 

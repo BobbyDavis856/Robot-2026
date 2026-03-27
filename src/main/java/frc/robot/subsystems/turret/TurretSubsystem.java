@@ -99,7 +99,9 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
         double targetVelocity = 0;
         double robotVelocity = RobotContainer.swerveSubsystem.getAngularVelocity().in(RadiansPerSecond);
-        if (angle.in(Radian) > Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian) && angle.in(Radian) < Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian) && Math.abs(robotVelocity) > 0.01) {
+        if (angle.in(Radian) > Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian)
+            && angle.in(Radian) < Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian) 
+            && Math.abs(robotVelocity) > 0.01) {
             targetVelocity = robotVelocity;
         }
 
@@ -110,7 +112,11 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     public void setTurretPitch(Angle angle) {
         turretPitchPID.setGoal(
-            MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian))
+            MathUtil.clamp(
+                angle.in(Radian), 
+                Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radian), 
+                Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian)
+            )
         );
     }
 
@@ -156,7 +162,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     private double calculateTurretYawVoltage() {
         double turretYawVoltage = MathUtil.clamp(
-            turretYawPID.calculate(io.getYawRadians()),
+            turretYawPID.calculate(io.getYawRadians()) * 1.5,
             -0.75,
             0.75
         );
@@ -185,7 +191,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         );
         
         TrapezoidProfile.State turretPitchState = turretPitchPID.getSetpoint();
-        turretPitchVoltage += turretPitchFF.calculateWithVelocities( turretPrevPitchSetpointVelocity, turretPitchState.velocity);
+        turretPitchVoltage += turretPitchFF.calculateWithVelocities(turretPrevPitchSetpointVelocity, turretPitchState.velocity);
         turretPitchVoltage += Math.cos(turretPitchState.position) * Constants.TurretConstants.TURRET_PITCH_G.in(Volt);
         turretPitchVoltage = MathUtil.clamp(
             turretPitchVoltage, 
@@ -367,8 +373,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
         }
 
-        turretYawVoltage = MathUtil.clamp(turretYawVoltage, -12, 12);
-        turretPitchVoltage = MathUtil.clamp(turretPitchVoltage, -12, 12);
+        turretYawVoltage = MathUtil.clamp(turretYawVoltage, -5, 5);
+        turretPitchVoltage = MathUtil.clamp(turretPitchVoltage, -5, 5);
 
         io.setYawMotorVoltage(turretYawVoltage);
         io.setPitchMotorVoltage(turretPitchVoltage);
