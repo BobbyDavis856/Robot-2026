@@ -238,6 +238,8 @@ public class RobotContainer {
 
 		driverController.rightButton().toggleOnTrue(new ActivateShooterCommand());
 
+		driverController.menuButton().onTrue(RobotContainer.swerveSubsystem.zeroGyroCommand());
+		
 		/*
 		driverController.rightTrigger().whileTrue(new ParallelCommandGroup(
 				new ActivateKickerCommand(),

@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import java.time.Instant;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -28,6 +29,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
@@ -116,7 +119,7 @@ public class SwerveSubsystem extends SubsystemBase{
     public void zeroGyro() {
         if (Constants.SwerveConstants.ENABLED) {
 
-            swerveDrive.resetOdometry(
+            resetOdometry(
                 new Pose2d(
                     swerveDrive.getPose().getTranslation(),
                     Rotation2d.fromDegrees(RobotContainer.isBlueAlliance() ? 180 : 0)
@@ -124,6 +127,14 @@ public class SwerveSubsystem extends SubsystemBase{
             );
             System.out.println("Zeroed Swerve");
         }
+    }
+
+    public Command zeroGyroCommand() {
+
+        
+        return new RunCommand(() -> {
+            RobotContainer.swerveSubsystem.zeroGyro();
+        });
     }
 
     public Pose2d getPose2d() {
