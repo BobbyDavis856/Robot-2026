@@ -84,6 +84,10 @@
     {
       "waypointRelativePos": 2.0,
       "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 3.0,
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [],
@@ -91,7 +95,7 @@
   "eventMarkers": [
     {
       "name": "DeployIntakeCommand",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.27394540942928636,
       "endWaypointRelativePos": null,
       "command": null
     }
