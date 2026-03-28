@@ -93,7 +93,7 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
                 spindexerVoltage = 0;
                 break;
             case READY_REVERSE:
-                spindexerVoltage = -Constants.SpindexerConstants.SPINDEXER_MOTOR_VOLTAGE.in(Volt) * 5;
+                spindexerVoltage = -Constants.SpindexerConstants.SPINDEXER_MOTOR_VOLTAGE.in(Volt);
                 break;
             case READY:
                 spindexerVoltage = Constants.SpindexerConstants.SPINDEXER_MOTOR_VOLTAGE.in(Volt);

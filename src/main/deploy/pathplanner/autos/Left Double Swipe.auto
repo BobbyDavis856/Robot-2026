@@ -27,12 +27,6 @@
                             "data": {
                               "name": "TurretAutoAimCommand"
                             }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "ActivateIntakeCommand"
-                            }
                           }
                         ]
                       }
@@ -51,9 +45,28 @@
                       }
                     },
                     {
-                      "type": "path",
+                      "type": "deadline",
                       "data": {
-                        "pathName": "Left Top Collect Balls"
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "Left Top Collect Balls"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "ActivateIntakeCommand"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "DeployIntakeCommand"
+                            }
+                          }
+                        ]
                       }
                     },
                     {

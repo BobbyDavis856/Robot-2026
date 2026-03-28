@@ -45,7 +45,7 @@ public class SmartShootCommand extends Command {
                 }
                 break;
             case REVERSE:
-                if (shootStateMachine.getStateTimer() > 2) {
+                if (shootStateMachine.getStateTimer() > 1) {
                     shootStateMachine.transitionTo(SmartShootStatus.FORWARD);
                 }
                 break;
