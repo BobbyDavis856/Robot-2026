@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.7802853066979196,
-        "y": 7.408864734299517
+        "x": 2.8228245363766047,
+        "y": 7.1855634807417985
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.78028530669792,
-        "y": 7.408864734299517
+        "x": 3.822824536376604,
+        "y": 7.1855634807417985
       },
       "isLocked": false,
       "linkedName": "Left Shoot Start Pos"
@@ -48,7 +48,7 @@
   "folder": "Left Auto Paths",
   "idealStartingState": {
     "velocity": 3.0,
-    "rotation": 180.0
+    "rotation": 151.07357416474645
   },
   "useDefaultConstraints": true
 }
