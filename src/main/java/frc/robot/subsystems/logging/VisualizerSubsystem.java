@@ -65,7 +65,7 @@ public class VisualizerSubsystem extends SubsystemBase {
                     fieldSpeeds.vyMetersPerSecond
                 ),
                 robotTargetRelative,
-                Radian.of(Math.atan2(robotTargetRelative.getY(), robotTargetRelative.getX())),
+                robotPose.getRotation().getMeasure(),
                 true,
                 Constants.FuelPhysicsConstants.TPS
             );

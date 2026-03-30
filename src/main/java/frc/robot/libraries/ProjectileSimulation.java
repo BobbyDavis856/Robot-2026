@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.Second;
 
 import java.util.ArrayList;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
@@ -89,6 +90,7 @@ public class ProjectileSimulation {
     public record TargetInput (
         LinearVelocity startLaunchSpeed,
         AngularVelocity launchAngularYaw,
+        Angle robotYaw,
         Translation2d robotVelocity,
         Translation3d targetPosition,
         double efficiency,
@@ -138,7 +140,7 @@ public class ProjectileSimulation {
      * @return A {@link Double} array in the format [Cur X, Cur Y, Cur Z, Prev X, Prev Y, Prev Z, Max Height]
      *  
      */
-    public Double[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, boolean logAllPositions, int tps) {
+    public Double[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle robotYaw, boolean logAllPositions, int tps) {
         
         double noteVerticalOffset = Math.sin(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
         double noteForwardOffset = Math.cos(launchPitch.in(Radians)) * Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET.in(Meter);
@@ -146,9 +148,11 @@ public class ProjectileSimulation {
         double noteXOffset = Math.cos(launchYaw.in(Radians)) * noteForwardOffset;
         double noteYOffset = Math.sin(launchYaw.in(Radians)) * noteForwardOffset;
 
-        double posX = Constants.TurretConstants.TURRET_PIVOT_OFFSET.getX() + noteXOffset;
-        double posY = Constants.TurretConstants.TURRET_PIVOT_OFFSET.getY() + noteYOffset;
-        double posZ = Constants.TurretConstants.TURRET_PIVOT_OFFSET.getZ() + noteVerticalOffset;
+        Translation3d rotatedTurretOffset = Constants.TurretConstants.TURRET_PIVOT_OFFSET.rotateBy(new Rotation3d(0, 0, robotYaw.in(Radians)));
+
+        double posX = rotatedTurretOffset.getX() + noteXOffset;
+        double posY = rotatedTurretOffset.getY() + noteYOffset;
+        double posZ = rotatedTurretOffset.getZ() + noteVerticalOffset;
 
         double velX = (launchSpeed.in(MetersPerSecond) * Math.cos(launchPitch.in(Radians)) * Math.cos(launchYaw.in(Radians))) + robotVelocity.getX();
         double velY = (launchSpeed.in(MetersPerSecond) * Math.cos(launchPitch.in(Radians)) * Math.sin(launchYaw.in(Radians))) + robotVelocity.getY();
@@ -370,7 +374,7 @@ public class ProjectileSimulation {
      *       <li>Height error</li>
      *  </ul>
      */
-    private double[] calculateLaunchError(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, Distance horizontalDistance, int tps) {
+    private double[] calculateLaunchError(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, AngularVelocity launchAngularPitch, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle robotYaw, Distance horizontalDistance, int tps) {
         Double[] path = simulateLaunch(
             launchSpeed,
             launchPitch,
@@ -379,11 +383,11 @@ public class ProjectileSimulation {
             launchAngularYaw,
             robotVelocity,
             targetPosition,
-            targetDirectAngle,
+            robotYaw,
             false,
             tps
         );
-        Translation3d crossOverPoint = interpolatePosition(path, targetPosition, targetDirectAngle);
+        Translation3d crossOverPoint = interpolatePosition(path, targetPosition, Radians.of(Math.atan2(targetPosition.getY(), targetPosition.getX())));
 
         double verticalVelocity = (path[2] - path[5]) * tps;
 
@@ -455,6 +459,7 @@ public class ProjectileSimulation {
         return calculateLaunchAngleSimulation(
             targetInput.startLaunchSpeed,
             targetInput.launchAngularYaw,
+            targetInput.robotYaw,
             targetInput.robotVelocity,
             targetInput.targetPosition,
             targetInput.efficiency,
@@ -473,11 +478,9 @@ public class ProjectileSimulation {
      * @param tps The ticks per second that physics will be calculated at
      * @return The target solution
      */
-    public TargetSolution calculateLaunchAngleSimulation(LinearVelocity startLaunchSpeed, AngularVelocity launchAngularYaw, Translation2d robotVelocity, Translation3d targetPosition, double efficiency, int maxSteps, int tps) {
+    public TargetSolution calculateLaunchAngleSimulation(LinearVelocity startLaunchSpeed, AngularVelocity launchAngularYaw, Angle robotYaw, Translation2d robotVelocity, Translation3d targetPosition, double efficiency, int maxSteps, int tps) {
         
         Distance horizontalDistance = Meter.of(Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2)));
-
-        double targetDirectAngle = Math.atan2(targetPosition.getY(), targetPosition.getX());
 
         Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(startLaunchSpeed, horizontalDistance, Meter.of(targetPosition.getZ() - Constants.TurretConstants.TURRET_PIVOT_OFFSET.getZ()));
 
@@ -493,15 +496,15 @@ public class ProjectileSimulation {
 
         double launchPitch = launchAnglePitch1Temp.in(Radians);
         double launchSpeed = estimateShootingVelocity(targetPosition.toTranslation2d(), MetersPerSecond.of(speedLimitUpper), robotVelocity).in(MetersPerSecond);
-        double launchYaw = targetDirectAngle;
+        double launchYaw = Math.atan2(targetPosition.getY(), targetPosition.getX());
 
         double perturbation = 0.05;
 
-        double[] error = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] error = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
-        double[] pitchError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch + perturbation), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] pitchError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch + perturbation), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
-        double[] yawError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw + perturbation), RadiansPerSecond.of(-((launchSpeed) / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] yawError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw + perturbation), RadiansPerSecond.of(-((launchSpeed) / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
         double pitchDelta;
         double yawDelta;
@@ -538,7 +541,7 @@ public class ProjectileSimulation {
                 launchAngularYaw, 
                 robotVelocity, 
                 targetPosition, 
-                Radians.of(targetDirectAngle), 
+                robotYaw, 
                 horizontalDistance, 
                 tps
             );
