@@ -10,7 +10,9 @@ import static edu.wpi.first.units.Units.Second;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -163,14 +165,38 @@ public class CalculationSubsystem {
                 targetPosition = hubPosition;
                 break;
         }
+        
+        ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
+        ChassisSpeeds targetSpeeds = RobotContainer.swerveChassisSpeedsSupplier.get();
 
-        Translation3d robotTargetRelative = new Translation3d(
-            targetPosition.getX() - botPose.getX(),
-            targetPosition.getY() - botPose.getY(),
-            targetPosition.getZ()
+        double predictedAccelerationX = (targetSpeeds.vxMetersPerSecond - fieldSpeeds.vxMetersPerSecond) * Constants.SwerveConstants.SWERVE_ACCELERATION_CONSTANT;
+        double predictedAccelerationY = (targetSpeeds.vyMetersPerSecond - fieldSpeeds.vyMetersPerSecond) * Constants.SwerveConstants.SWERVE_ACCELERATION_CONSTANT;
+
+        double predictedVelocityX = fieldSpeeds.vxMetersPerSecond + (predictedAccelerationX * Constants.TurretConstants.TURRET_LATENCY.in(Second));
+        double predictedVelocityY = fieldSpeeds.vyMetersPerSecond + (predictedAccelerationY * Constants.TurretConstants.TURRET_LATENCY.in(Second));
+
+        predictedVelocityX = MathUtil.clamp(
+            predictedVelocityX,
+            -Math.max(Math.abs(fieldSpeeds.vxMetersPerSecond), Math.abs(targetSpeeds.vxMetersPerSecond)),
+            Math.max(Math.abs(fieldSpeeds.vxMetersPerSecond), Math.abs(targetSpeeds.vxMetersPerSecond))
+        );
+        predictedVelocityY = MathUtil.clamp(
+            predictedVelocityY,
+            -Math.max(Math.abs(fieldSpeeds.vyMetersPerSecond), Math.abs(targetSpeeds.vyMetersPerSecond)),
+            Math.max(Math.abs(fieldSpeeds.vyMetersPerSecond), Math.abs(targetSpeeds.vyMetersPerSecond))
         );
 
-        ChassisSpeeds fieldSpeeds = RobotContainer.swerveSubsystem.getFieldChassisSpeeds();
+        predictedAccelerationX = (predictedVelocityX - fieldSpeeds.vxMetersPerSecond) / Constants.TurretConstants.TURRET_LATENCY.in(Second);
+        predictedAccelerationY = (predictedVelocityY - fieldSpeeds.vyMetersPerSecond) / Constants.TurretConstants.TURRET_LATENCY.in(Second);
+
+        double predictedPositionX = botPose.getX() + ((fieldSpeeds.vxMetersPerSecond * Constants.TurretConstants.TURRET_LATENCY.in(Second)) + (0.5 * predictedAccelerationX * Math.pow(Constants.TurretConstants.TURRET_LATENCY.in(Second), 2)));
+        double predictedPositionY = botPose.getY() + ((fieldSpeeds.vyMetersPerSecond * Constants.TurretConstants.TURRET_LATENCY.in(Second)) + (0.5 * predictedAccelerationY * Math.pow(Constants.TurretConstants.TURRET_LATENCY.in(Second), 2)));
+
+        Translation3d robotTargetRelative = new Translation3d(
+            targetPosition.getX() - predictedPositionX,
+            targetPosition.getY() - predictedPositionY,
+            targetPosition.getZ()
+        );
 
         setTargetInputs(new TargetInput(
             getProjectileSimulation().convertShooterSpeedToVelocity(
@@ -181,8 +207,8 @@ public class CalculationSubsystem {
             DegreesPerSecond.of(0),
             botPose.getRotation().getMeasure(),
             new Translation2d(
-                fieldSpeeds.vxMetersPerSecond,
-                fieldSpeeds.vyMetersPerSecond
+                predictedVelocityX,
+                predictedVelocityY
             ),
             robotTargetRelative,
             Constants.FuelPhysicsConstants.EFFICENCY,
@@ -197,6 +223,8 @@ public class CalculationSubsystem {
         SmartDashboard.putString("Auto Aim/Solution Debug", lastSolution.targetDebug().toString());
         SmartDashboard.putNumber("Auto Aim/Timestamp", lastSolution.timestamp().in(Second));
         SmartDashboard.putBoolean("Auto Aim/Error", lastSolution.errorCode() != TargetErrorCode.NONE);
+
+        SmartDashboard.putNumberArray("Auto Aim/Predicted Position", PoseHelpers.convertTranslationToNumbers(new Translation3d(predictedPositionX, predictedPositionY, 0.0)));
     }
 
     public void setTargetInputs(TargetInput targetInput) {

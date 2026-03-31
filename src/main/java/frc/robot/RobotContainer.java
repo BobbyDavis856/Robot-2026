@@ -123,7 +123,8 @@ public class RobotContainer {
 	private static SendableChooser<Command> autoChooser;
 
 	// Transforms controller input into swerve drive spee
-	public SwerveInputStream swerveInputStream;
+	public static SwerveInputStream swerveInputStream;
+	public static Supplier<ChassisSpeeds> swerveChassisSpeedsSupplier = () -> {return new ChassisSpeeds();};
 
 	public static boolean rotationalAiming = false;
 	private boolean turretHomed = false;
@@ -133,21 +134,24 @@ public class RobotContainer {
 
 	public RobotContainer() {
 		if (Constants.SwerveConstants.ENABLED) {
-			this.swerveInputStream = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
-					driverController.leftXCombinedSupplier(),//() -> driverController.getLeftY() * -1,
-					driverController.leftYCombinedSupplier())//() -> driverController.getLeftX() * -1)
-					.withControllerRotationAxis(driverController.rightXSupplier())
-					.withControllerHeadingAxis(
-						calculationSubsystem.getTargetHeadingX(),
-						calculationSubsystem.getTargetHeadingY()
-					)
-					.deadband(0.0001)
-					.scaleRotation(Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
-					.scaleTranslation(Constants.OperatorConstants.SWERVE_TRANSLATION_SCALE)
-					.headingWhile(() -> {return RobotContainer.rotationalAiming;})
-					.allianceRelativeControl(true);
-			driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(swerveInputStream);
+			swerveInputStream = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
+				driverController.leftXCombinedSupplier(),//() -> driverController.getLeftY() * -1,
+				driverController.leftYCombinedSupplier())//() -> driverController.getLeftX() * -1)
+				.withControllerRotationAxis(driverController.rightXSupplier())
+				.withControllerHeadingAxis(
+					calculationSubsystem.getTargetHeadingX(),
+					calculationSubsystem.getTargetHeadingY()
+				)
+				.deadband(0.0001)
+				.scaleRotation(Constants.OperatorConstants.SWERVE_ROTATION_SCALE)
+				.scaleTranslation(Constants.OperatorConstants.SWERVE_TRANSLATION_SCALE)
+				.headingWhile(() -> {return RobotContainer.rotationalAiming;})
+				.allianceRelativeControl(true);
 
+			swerveChassisSpeedsSupplier = () -> {return swerveInputStream.get();};
+			driveFieldOrientedAngularVelocity = swerveSubsystem.driveFieldOriented(swerveChassisSpeedsSupplier);
+
+			
 		} else {
 			driveFieldOrientedAngularVelocity = swerveSubsystem.run(() -> {});
 		}
@@ -300,6 +304,7 @@ public class RobotContainer {
 	}
 
 	public void periodic() {
+		
 		Pose2d botPose = swerveSubsystem.getPose2d();
 
 		calculationSubsystem.updateBotZone(botPose);

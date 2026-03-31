@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Pound;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volt;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -28,6 +29,7 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Per;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -44,6 +46,8 @@ public final class Constants {
         public static final double DRIVE_P = 1;
         public static final double DRIVE_I = 0;
         public static final double DRIVE_D = 0;
+
+        public static final double SWERVE_ACCELERATION_CONSTANT = 5.0;
     }
 
     public final class TurretConstants {
@@ -98,6 +102,8 @@ public final class Constants {
         public static final Distance TURRET_PIVOT_FUEL_OFFSET = Meter.of(0.22);
 
         public static final Angle TURRET_STOWED_PITCH_ANGLE = TURRET_PITCH_LOWER_LIMIT;
+
+        public static final Time TURRET_LATENCY = Second.of(0.2);
     }
 
     public final class ShooterConstants {
