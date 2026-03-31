@@ -441,7 +441,7 @@ public class ProjectileSimulation {
         }
 
         double baseVelocity = MathUtil.interpolate(
-            speedLimitUpper.in(MetersPerSecond) * 0.4,
+            speedLimitUpper.in(MetersPerSecond) * 0.6,
             speedLimitUpper.in(MetersPerSecond),
             MathUtil.inverseInterpolate(0, 10, targetDistance)
         );
@@ -503,11 +503,11 @@ public class ProjectileSimulation {
 
         double perturbation = 0.05;
 
-        double[] error = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
+        double[] error = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
-        double[] pitchError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch + perturbation), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
+        double[] pitchError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch + perturbation), Radians.of(launchYaw), RadiansPerSecond.of(-(launchSpeed / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
-        double[] yawError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw + perturbation), RadiansPerSecond.of(-((launchSpeed) / projectileRadius) * efficiency), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
+        double[] yawError = calculateLaunchError(MetersPerSecond.of(launchSpeed), Radians.of(launchPitch), Radians.of(launchYaw + perturbation), RadiansPerSecond.of(-((launchSpeed) / projectileRadius)), launchAngularYaw, robotVelocity, targetPosition, robotYaw, horizontalDistance, tps);
 
         double pitchDelta;
         double yawDelta;
@@ -540,7 +540,7 @@ public class ProjectileSimulation {
                 MetersPerSecond.of(launchSpeed), 
                 Radians.of(launchPitch), 
                 Radians.of(launchYaw), 
-                RadiansPerSecond.of(-(launchSpeed / projectileRadius) * efficiency), 
+                RadiansPerSecond.of(-(launchSpeed / projectileRadius)), 
                 launchAngularYaw, 
                 robotVelocity, 
                 targetPosition, 

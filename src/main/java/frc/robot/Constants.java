@@ -118,7 +118,7 @@ public final class Constants {
         public static final double SHOOTER_V = 0.127; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.04; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
-        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(80);
+        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
         public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(30);
         public static final AngularAcceleration SHOOTER_MAX_ACCELERATION = RotationsPerSecondPerSecond.of(400);
         public static final double SHOOTER_MAX_JERK = 50; // Unit is rotations/s^3

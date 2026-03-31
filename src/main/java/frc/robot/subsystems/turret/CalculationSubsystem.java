@@ -230,10 +230,9 @@ public class CalculationSubsystem {
                 TargetInput targetInput = this.getTargetInputs();
 
                 TargetSolution solution = projectileSimulationInstance.calculateLaunchAngleSimulation(targetInput);
+                this.setTargetSolutions(solution);
 
                 double elapsedTime = Timer.getFPGATimestamp() - startTime;
-
-                this.setTargetSolutions(solution);
 
                 long sleepTimeMs = Math.max(5, 20 - (long)(elapsedTime * 1000));
                 
