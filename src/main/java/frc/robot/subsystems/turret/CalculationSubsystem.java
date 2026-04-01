@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -53,7 +54,22 @@ public class CalculationSubsystem {
     private final AtomicReference<TargetInput> targetInputs;
     private final AtomicReference<TargetSolution> targetSolutions;
 
-	private final ProjectileSimulation projectileInstance = new ProjectileSimulation();
+	private final ProjectileSimulation projectileInstance = new ProjectileSimulation(
+        Constants.FuelPhysicsConstants.DRAG_CONSTANT,
+        Constants.FuelPhysicsConstants.ROT_DRAG_CONSTANT,
+        Constants.FuelPhysicsConstants.CROSS_SECTION_AREA,
+        Constants.FuelPhysicsConstants.MASS,
+        Constants.FuelPhysicsConstants.FLUID_DENSITY,
+        Constants.FuelPhysicsConstants.GRAVITY,
+        Constants.FuelPhysicsConstants.LIFT_CONSTANT,
+        Constants.TurretConstants.TURRET_PIVOT_FUEL_OFFSET,
+        Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS,
+        Constants.TurretConstants.TURRET_PIVOT_OFFSET,
+        Radian.of((Math.PI / 2.0) - Constants.TurretConstants.TURRET_PITCH_UPPER_LIMIT.in(Radian)),
+        Radian.of((Math.PI / 2.0) - Constants.TurretConstants.TURRET_PITCH_LOWER_LIMIT.in(Radian)),
+        Constants.ShooterConstants.SHOOTER_MIN_VELOCITY,
+        Constants.ShooterConstants.SHOOTER_MAX_VELOCITY
+    );
 
     private Thread projectileThread;
 
@@ -250,22 +266,24 @@ public class CalculationSubsystem {
             ProjectileSimulation projectileSimulationInstance = this.getProjectileSimulation();
 
             while (!Thread.currentThread().isInterrupted()) {
-                double startTime = Timer.getFPGATimestamp();
-
-                TargetInput targetInput = this.getTargetInputs();
-
-                TargetSolution solution = projectileSimulationInstance.calculateLaunchAngleSimulation(targetInput);
-                this.setTargetSolutions(solution);
-
-                double elapsedTime = Timer.getFPGATimestamp() - startTime;
-
-                long sleepTimeMs = Math.max(5, 20 - (long)(elapsedTime * 1000));
-                
                 try {
+                    double startTime = Timer.getFPGATimestamp();
+
+                    TargetInput targetInput = this.getTargetInputs();
+
+                    TargetSolution solution = projectileSimulationInstance.calculateLaunchAngleSimulation(targetInput);
+                    this.setTargetSolutions(solution);
+
+                    double elapsedTime = Timer.getFPGATimestamp() - startTime;
+
+                    long sleepTimeMs = Math.max(5, 20 - (long)(elapsedTime * 1000));
+
                     Thread.sleep(sleepTimeMs);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
+                } catch (Exception e) {
+                    DriverStation.reportError("Projectile Simulation Thread Crashed: " + e.getMessage(), e.getStackTrace());
                 }
             }
         });
