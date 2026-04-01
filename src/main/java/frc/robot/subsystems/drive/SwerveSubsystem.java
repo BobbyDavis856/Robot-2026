@@ -106,6 +106,9 @@ public class SwerveSubsystem extends SubsystemBase{
 
     public void resetOdometry(Pose2d initialPose) {
         if (Constants.SwerveConstants.ENABLED) {
+
+            swerveDrive.setGyro(new Rotation3d(0, 0, initialPose.getRotation().getRadians()));
+
             swerveDrive.resetOdometry(initialPose);
         }
     }
@@ -122,16 +125,7 @@ public class SwerveSubsystem extends SubsystemBase{
     public void zeroGyro() {
         if (Constants.SwerveConstants.ENABLED) {
 
-            double robotYaw = RobotContainer.isBlueAlliance() ? (Math.PI / 2.0) : 0;
-
-            swerveDrive.setGyro(new Rotation3d(0, 0, robotYaw));
-
-            resetOdometry(
-                new Pose2d(
-                    swerveDrive.getPose().getTranslation(),
-                    Rotation2d.fromRadians(robotYaw)
-                )
-            );
+            resetOdometry(swerveDrive.getPose().getTranslation());
             System.out.println("Zeroed Swerve");
         }
     }

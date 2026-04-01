@@ -81,9 +81,9 @@ public final class Constants {
         public static final boolean TURRET_PITCH_MOTOR_INVERTED = false;
         public static final double TURRET_PITCH_GEAR_RATIO = 160.0 / 14.0; // Rotations of the motor for one rotation of the pitch
         public static final double TURRET_PITCH_ZERO_OFFSET = 0;
-        public static final double TURRET_PITCH_P = 4.5;
+        public static final double TURRET_PITCH_P = 4.25;
         public static final double TURRET_PITCH_I = 0;
-        public static final double TURRET_PITCH_D = 0.031;
+        public static final double TURRET_PITCH_D = 0.035;
         public static final Voltage TURRET_PITCH_S = Volts.of(0.1);
         public static final Voltage TURRET_PITCH_G = Volts.of(0.145);
         public static final double TURRET_PITCH_V = 0.135; // Unit is V/(rad/s)
@@ -95,7 +95,7 @@ public final class Constants {
         public static final Angle TURRET_PITCH_UPPER_LIMIT = Degree.of(40);
         public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(1);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
-            -0.1,
+            -0.15,
             0.0,
             0.18
         ); // In meters
@@ -119,9 +119,9 @@ public final class Constants {
 
         public static final double SHOOTER_P = 0.0175;
         public static final double SHOOTER_I = 0;
-        public static final double SHOOTER_D = 0;
+        public static final double SHOOTER_D = 0.0005;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
-        public static final double SHOOTER_V = 0.128; // Unit is V/(rotations/s)
+        public static final double SHOOTER_V = 0.125; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.02; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
         public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
@@ -142,7 +142,7 @@ public final class Constants {
         public static final boolean ENABLED = true;
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
-        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(8);
+        public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(6);
         public static final Current KICKER_REVERSE_CURRENT = Amp.of(28);
     }
 
@@ -150,7 +150,7 @@ public final class Constants {
         public static final boolean ENABLED = true;
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = true;
-        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(8);
+        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(7);
         public static final Current SPINDEXER_REVERSE_CURRENT = Amp.of(28);
     }
 
@@ -183,10 +183,10 @@ public final class Constants {
     }
 
     public final class FuelPhysicsConstants {
-        public static final int TPS = 20;
+        public static final int TPS = 25;
         public static final int MAX_STEPS = 15;
-        public static final double DRAG_CONSTANT = 0.55;
-        public static final double EFFICENCY = 0.39;
+        public static final double DRAG_CONSTANT = 0.57;
+        public static final double EFFICENCY = 0.42;
         public static final double ROT_DRAG_CONSTANT = 0.05;
         public static final double LIFT_CONSTANT = 0.35;
         public static final double CROSS_SECTION_AREA = 0.01767;
