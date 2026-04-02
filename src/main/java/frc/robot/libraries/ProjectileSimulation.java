@@ -215,7 +215,7 @@ public class ProjectileSimulation {
         ArrayList<Double> positionLog = new ArrayList<>();
         double maxHeight = 0;
 
-        for (int step = 0; step < 60 * tps; step++) {
+        for (int step = 0; step < 10 * tps; step++) {
             prevX = posX;
             prevY = posY;
             prevZ = posZ;
@@ -459,13 +459,13 @@ public class ProjectileSimulation {
         double targetDistance = targetPosition.getNorm();
 
         if (targetDistance < 1e-6) {
-            return MetersPerSecond.of(speedLimitUpper.in(MetersPerSecond) * 0.3);
+            return MetersPerSecond.of(speedLimitUpper.in(MetersPerSecond) * 0.4);
         }
 
         double baseVelocity = MathUtil.interpolate(
             speedLimitUpper.in(MetersPerSecond) * 0.4,
             speedLimitUpper.in(MetersPerSecond),
-            MathUtil.inverseInterpolate(0, 10, targetDistance)
+            MathUtil.inverseInterpolate(0, 11, targetDistance)
         );
 
         double normX = targetPosition.getX() / targetDistance;
