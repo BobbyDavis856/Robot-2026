@@ -1,6 +1,5 @@
 package frc.robot.libraries;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class SubsystemStateMachine<E extends Enum<E>> extends SubsystemBase {

@@ -3,10 +3,8 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Volt;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.libraries.SubsystemStateMachine;
-import frc.robot.subsystems.turret.ShooterSubsystem.ShooterState;
 
 public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.subsystems.intake.IntakeDeploymentSubsystem.IntakeDeploymentState> {
     public enum IntakeDeploymentState {

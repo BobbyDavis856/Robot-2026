@@ -2,7 +2,6 @@ package frc.robot.commands.turret;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Volt;
 
 import java.util.function.DoubleSupplier;
 
@@ -10,7 +9,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.turret.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 
 public class ToggleManualCommand extends Command {

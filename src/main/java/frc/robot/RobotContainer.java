@@ -41,16 +41,12 @@ import frc.robot.commands.spindexer.ActivateSpindexerCommand;
 import frc.robot.commands.spindexer.ReverseSpindexerCommand;
 import frc.robot.commands.turret.ActivateShooterCommand;
 import frc.robot.commands.turret.HomeTurretCommand;
-import frc.robot.commands.turret.ManualAimCommand;
 import frc.robot.commands.turret.ManualStowTurretCommand;
 import frc.robot.commands.turret.ToggleFixedAimCommand;
 import frc.robot.commands.turret.ToggleManualCommand;
 import frc.robot.commands.turret.TurretAutoAimCommand;
 import frc.robot.libraries.FieldHelpers;
-import frc.robot.libraries.PoseHelpers;
-import frc.robot.libraries.ProjectileSimulation;
 import frc.robot.libraries.ProjectileSimulation.TargetErrorCode;
-import frc.robot.libraries.ProjectileSimulation.TargetSolution;
 import frc.robot.libraries.control.ControllerIO;
 import frc.robot.libraries.control.ControllerIOPS5;
 import frc.robot.libraries.control.ControllerIOXbox;
@@ -79,9 +75,6 @@ import frc.robot.subsystems.turret.TurretIOReal;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.subsystems.vision.LimelightSubsystem;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {

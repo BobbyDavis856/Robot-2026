@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Volt;
 
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.SubsystemStateMachine;

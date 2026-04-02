@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Radian;
 
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
