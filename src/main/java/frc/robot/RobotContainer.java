@@ -120,13 +120,16 @@ public class RobotContainer {
 
 	public static Command driveFieldOrientedAngularVelocity;
 	
+	private int lastTeam = -1;
 
 	public RobotContainer() {
 		if (Constants.SwerveConstants.ENABLED) {
 			swerveInputStream = SwerveInputStream.of(swerveSubsystem.getSwerveDrive(),
 				driverController.leftXCombinedSupplier(),//() -> driverController.getLeftY() * -1,
 				driverController.leftYCombinedSupplier())//() -> driverController.getLeftX() * -1)
-				.withControllerRotationAxis(driverController.rightXSupplier())
+				.withControllerRotationAxis(
+					driverController.rightXSupplier()
+				)
 				.withControllerHeadingAxis(
 					calculationSubsystem.getTargetHeadingX(),
 					calculationSubsystem.getTargetHeadingY()
@@ -277,11 +280,13 @@ public class RobotContainer {
 
 		calculationSubsystem.updateAimingPositions();
 
-		calculationSubsystem.startPhysicsSimulation();
-
-		swerveSubsystem.resetOdometry(
-			FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)), isRedAlliance())
-		);
+		int team = (RobotContainer.isBlueAlliance() ? 1 : 0);
+		if (lastTeam != team) {
+			swerveSubsystem.resetOdometry(
+				FieldHelpers.rotateBlueFieldCoordinates(new Translation2d(Meter.of(2), Meter.of(4)), isRedAlliance())
+			);
+			lastTeam = team;
+		}
 
 		if (!turretHomed) {
 			if (Robot.isReal()) {
