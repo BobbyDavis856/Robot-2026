@@ -147,7 +147,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         turretPrevYawSetpointVelocity = 0;
     }
 
-    private void resetTurretHoming() {
+    public void resetTurretHoming() {
         turretHomingStage = HomingStage.SEARCHING;
         turretHomingStart = 0;
         io.resetHomingCounter();

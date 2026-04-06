@@ -39,7 +39,7 @@ public class QuestNavSubsystem extends SubsystemBase {
     }
 
     public VisionStdDevs calculateVisionStdDevs(Pose3d visionPose) {
-        if (FieldHelpers.poseInField(visionPose)) {
+        if (!FieldHelpers.poseInField(visionPose)) {
             return new VisionStdDevs(VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE), VisionRejection.OUT_OF_FIELD_BOUNDS);
         }
 

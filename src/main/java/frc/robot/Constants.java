@@ -140,12 +140,14 @@ public final class Constants {
     }
     
     public final class LightConstants {
-        public static final int LIGHT_PORT = 9;
-        public static final int LIGHT_LENGTH = 10;
+        public static final int LIGHT_PORT = 0;
+        public static final int LIGHT_LENGTH = 30;
 
-        public static final LEDPattern GREEN = LEDPattern.solid(Color.fromHSV(165, 100, 100));
-        public static final LEDPattern RED = LEDPattern.solid(Color.fromHSV(359, 100, 100));
-        public static final LEDPattern ORANGE = LEDPattern.solid(Color.fromHSV(33, 100, 100));
+        public static final LEDPattern COLOR_SHOOTER_ON = LEDPattern.solid(new Color(0, 255, 0));
+        public static final LEDPattern COLOR_SHOOTER_OFF = LEDPattern.solid(new Color(255, 0, 0));
+        public static final LEDPattern COLOR_INVALID_SHOT = LEDPattern.solid(new Color(0, 0, 255));
+        public static final LEDPattern COLOR_DS_DISCONNECTED = LEDPattern.solid(new Color(255, 0, 0)).blink(Second.of(0.5));
+        public static final LEDPattern COLOR_BOT_DISABLED = LEDPattern.rainbow(255, 255).scrollAtAbsoluteSpeed(MetersPerSecond.of(0.25), Meter.of(0.015));
     }
 
     public final class KickerConstants {
@@ -229,7 +231,7 @@ public final class Constants {
     }
 
     public final class QuestConstants {
-        public static final Transform3d ROBOT_TO_QUEST = new Transform3d(0.3, 0.0, 0.5, new Rotation3d(0, 0, 0));
+        public static final Transform3d ROBOT_TO_QUEST = new Transform3d(-0.2568, -0.2925, 0.2, new Rotation3d(0, 0, -90));
 
         public static final Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(
             0.02, // Trust down to 2cm in X direction

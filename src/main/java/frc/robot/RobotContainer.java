@@ -55,7 +55,6 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightSubsystem;
-import frc.robot.subsystems.lights.LightSubsystem.LightState;
 import frc.robot.subsystems.logging.VisualizerSubsystem;
 import frc.robot.subsystems.spindexer.SpindexerIO;
 import frc.robot.subsystems.spindexer.SpindexerIOReal;
@@ -76,7 +75,7 @@ import frc.robot.subsystems.vision.QuestNavSubsystem;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
-	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOXbox(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 
 	// Establishes subsystems
 	public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem(
@@ -306,16 +305,6 @@ public class RobotContainer {
 
 		calculationSubsystem.updateBotZone(botPose);
 		calculationSubsystem.updateTrajectoryCalculations(botPose);
-
-		if (calculationSubsystem.getTargetSolutions().errorCode() == TargetErrorCode.NONE) {
-			lightSubsystem.requestDesiredState(LightState.AIM_SUCCESS, 5);
-		} else {
-			lightSubsystem.requestDesiredState(LightState.AIM_ERROR, 5);
-		}
-
-		if (turretSubsystem.getCurrentState() == TurretState.STOWED) {
-			lightSubsystem.requestDesiredState(LightState.AIM_STOWED, 6);
-		}
 		
 	}
 }
