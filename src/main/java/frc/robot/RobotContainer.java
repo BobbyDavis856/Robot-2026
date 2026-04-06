@@ -4,12 +4,8 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -18,7 +14,6 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -28,8 +23,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.intake.ActivateIntakeCommand;
 import frc.robot.commands.intake.DeployIntakeCommand;
 import frc.robot.commands.intake.RetractIntakeCommand;
@@ -121,6 +115,7 @@ public class RobotContainer {
 
 	public static boolean rotationalAiming = false;
 	private boolean turretHomed = false;
+	private Command turretHomeCommand;
 
 	public static Command driveFieldOrientedAngularVelocity;
 	
@@ -294,7 +289,12 @@ public class RobotContainer {
 
 		if (!turretHomed) {
 			if (Robot.isReal()) {
-				CommandScheduler.getInstance().schedule(new HomeTurretCommand());
+				CommandScheduler.getInstance().cancel(turretHomeCommand);
+
+				turretHomeCommand = new SequentialCommandGroup(new HomeTurretCommand(), Commands.runOnce(() -> {turretHomed = true;}));
+				CommandScheduler.getInstance().schedule(turretHomeCommand);
+			} else {
+				
 			}
 			turretHomed = true;
 		}
