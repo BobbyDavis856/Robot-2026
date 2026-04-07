@@ -19,7 +19,7 @@ public class IntakeSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     private final IntakeIO io;
 
-    private double lastErrorTimestamp = 0.0;
+    private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
 
     public IntakeSubsystem(IntakeIO io) {
         super(IntakeState.IDLE, IntakeState.IDLE);
@@ -34,9 +34,9 @@ public class IntakeSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         }
 
         if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
-            RobotContainer.healthSubsystem.reportError("IntakeSubsystem", ErrorConstants.MOTOR_CAN_ERROR);
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
         } else {
-            RobotContainer.healthSubsystem.clearError("IntakeSubsystem", ErrorConstants.MOTOR_CAN_ERROR);
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
         }
     }
 

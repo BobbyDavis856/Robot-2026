@@ -19,6 +19,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class HealthSubsystem extends SubsystemBase {
+
+    /**
+     * ErrorCode
+     * 
+     * @param priority An int representing the priority of the error. Priorities should generally follow this format:
+     * <ul>
+     *      <li>0-5: Warnings</li>
+     *      <li>6-10: Errors</li>
+     *      <li>11-15: Critical</li>
+     * </ul>
+     */    
     public record ErrorCode (
         int priority,
         String errorText,

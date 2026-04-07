@@ -79,7 +79,7 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     private HomingStage turretHomingStage = HomingStage.SEARCHING;
     private double turretHomingStart = 0;
 
-    private double lastErrorTimestamp = 0.0;
+    private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
 
     public TurretSubsystem(TurretIO io) {
         super(TurretState.IDLE, TurretState.IDLE);
@@ -217,9 +217,9 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         }
 
         if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
-            RobotContainer.healthSubsystem.reportError("TurretSubsystem", ErrorConstants.MOTOR_CAN_ERROR);
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
         } else {
-            RobotContainer.healthSubsystem.clearError("TurretSubsystem", ErrorConstants.MOTOR_CAN_ERROR);
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
         }
     }
 

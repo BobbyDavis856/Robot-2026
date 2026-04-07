@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Second;
 
 import java.util.function.Supplier;
 
@@ -26,10 +27,12 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.ErrorConstants;
 import frc.robot.RobotContainer;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
@@ -40,6 +43,8 @@ public class SwerveSubsystem extends SubsystemBase{
     
 
     private final SwerveIO io;
+
+    private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
 
     public SwerveSubsystem(SwerveIO io) {
         this.io = io;
@@ -133,8 +138,32 @@ public class SwerveSubsystem extends SubsystemBase{
         return run(() -> io.driveFieldOriented(speeds.get()));
     }
 
+    public void checkCanHealth() {
+        double timestamp = Timer.getFPGATimestamp();
+        if (io.checkCANError()) {
+            lastErrorTimestamp = timestamp;
+        }
+
+        if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        }
+    }
+
+    public void checkPigeonHealth() {
+        if (io.checkPigeonError()) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.PIGEON_DISCONNECTED);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.PIGEON_DISCONNECTED);
+        }
+    }
+
     @Override
     public void periodic() {
         RobotContainer.limelightSubsystem.getVisionEstimate();
+
+        checkCanHealth();
+        checkPigeonHealth();
     }
 }

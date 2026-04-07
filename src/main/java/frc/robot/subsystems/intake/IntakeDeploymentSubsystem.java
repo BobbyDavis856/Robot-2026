@@ -21,7 +21,7 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
 
     private final IntakeDeploymentIO io;
 
-    private double lastErrorTimestamp = 0.0;
+    private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
 
     public IntakeDeploymentSubsystem(IntakeDeploymentIO io) {
         super(IntakeDeploymentState.UNKNOWN, null);
@@ -36,9 +36,9 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
         }
 
         if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
-            RobotContainer.healthSubsystem.reportError("IntakeDeploymentSubsystem", ErrorConstants.MOTOR_CAN_ERROR);
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
         } else {
-            RobotContainer.healthSubsystem.clearError("IntakeDeploymentSubsystem", ErrorConstants.MOTOR_CAN_ERROR);
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
         }
     }
 

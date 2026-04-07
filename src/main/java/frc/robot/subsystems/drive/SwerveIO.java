@@ -35,4 +35,7 @@ public interface SwerveIO {
     default void addVisionMeasurement(Pose2d robotPose, double timestamp, Matrix<N3, N1> stdDevs) {}
 
     default PIDConstants getHeadingPIDConstants() {return new PIDConstants(0, 0, 0);}
+
+    default boolean checkCANError() {return false;}
+    default boolean checkPigeonError() {return false;}
 }

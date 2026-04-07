@@ -24,7 +24,7 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
 
     private final SpindexerIO io;
 
-    private double lastErrorTimestamp = 0.0;
+    private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
 
     public SpindexerSubsystem(SpindexerIO io) {
         super(SpindexerState.IDLE, SpindexerState.IDLE);
@@ -43,9 +43,9 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
         }
 
         if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
-            RobotContainer.healthSubsystem.reportError("SpindexerSubsystem", ErrorConstants.MOTOR_CAN_ERROR);
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
         } else {
-            RobotContainer.healthSubsystem.clearError("SpindexerSubsystem", ErrorConstants.MOTOR_CAN_ERROR);
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
         }
     }
 

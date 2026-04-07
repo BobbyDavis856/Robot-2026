@@ -77,9 +77,9 @@ public class LimelightSubsystem extends SubsystemBase {
 
         
         if (limelightDisconnected) {
-            RobotContainer.healthSubsystem.reportError("LimelightSubsystem", ErrorConstants.LIMELIGHT_DISCONNECTED);
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.LIMELIGHT_DISCONNECTED);
         } else {
-            RobotContainer.healthSubsystem.clearError("LimelightSubsystem", ErrorConstants.LIMELIGHT_DISCONNECTED);
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.LIMELIGHT_DISCONNECTED);
         }
     }
 

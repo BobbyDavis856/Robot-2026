@@ -275,15 +275,18 @@ public class RobotContainer {
 	}
 
 	public void periodicHealthChecks() {
-		if (!DriverStation.isJoystickConnected(0)) {
-			healthSubsystem.reportError("Main", ErrorConstants.JOYSTICKS_DISCONNECTED);
-		} else {
-			healthSubsystem.clearError("Main", ErrorConstants.JOYSTICKS_DISCONNECTED);
-		}
+		
 
 		if (!DriverStation.isDSAttached()) {
 			healthSubsystem.reportError("Main", ErrorConstants.DS_DISCONNECTED);
+			healthSubsystem.clearError("Main", ErrorConstants.JOYSTICKS_DISCONNECTED);
 		} else {
+			if (!DriverStation.isJoystickConnected(0)) {
+				healthSubsystem.reportError("Main", ErrorConstants.JOYSTICKS_DISCONNECTED);
+			} else {
+				healthSubsystem.clearError("Main", ErrorConstants.JOYSTICKS_DISCONNECTED);
+			}
+			
 			healthSubsystem.clearError("Main", ErrorConstants.DS_DISCONNECTED);
 		}
 	}

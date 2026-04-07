@@ -5,10 +5,13 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,6 +29,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import swervelib.SwerveDrive;
+import swervelib.SwerveModule;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
@@ -111,4 +115,29 @@ public class SwerveIOReal implements SwerveIO {
         return new PIDConstants(swerveDrive.swerveController.config.headingPIDF.p, swerveDrive.swerveController.config.headingPIDF.i, swerveDrive.swerveController.config.headingPIDF.d);
     }
     
+    @Override
+    public boolean checkCANError() {
+        for (SwerveModule swerveModule : swerveDrive.getModules()) {
+            SparkBase angleMotor = (SparkBase) swerveModule.getAngleMotor().getMotor();
+            SparkBase driveMotor = (SparkBase) swerveModule.getDriveMotor().getMotor();
+
+            angleMotor.getBusVoltage();
+            if (angleMotor.getFaults().can == true) {
+                return true;
+            }
+
+            driveMotor.getBusVoltage();
+            if (driveMotor.getFaults().can == true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean checkPigeonError() {
+        Pigeon2 pigeon2 = (Pigeon2) swerveDrive.getGyro().getIMU();
+        return !pigeon2.isConnected();
+    }
 }
