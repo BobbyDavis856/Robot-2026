@@ -127,7 +127,7 @@ public final class Constants {
 
         public static final double SHOOTER_P = 0.03;
         public static final double SHOOTER_I = 0.0;
-        public static final double SHOOTER_D = 0.0075;
+        public static final double SHOOTER_D = 0.01;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
         public static final double SHOOTER_V = 0.135; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.005; // Unit is V/(rotations/s^2)

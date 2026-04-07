@@ -92,7 +92,7 @@ public class LimelightSubsystem extends SubsystemBase {
             return new VisionStdDevs(Double.MAX_VALUE, VisionRejection.MAX_ANGULAR_VELOCITY);
         }
 
-        if (FieldHelpers.poseInField(visionPose)) {
+        if (!FieldHelpers.poseInField(visionPose)) {
             return new VisionStdDevs(Double.MAX_VALUE, VisionRejection.OUT_OF_FIELD_BOUNDS);
         }
         
