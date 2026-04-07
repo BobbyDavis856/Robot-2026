@@ -197,6 +197,8 @@ public final class Constants {
 
     public final class HealthConstants {
         public static final Time CYCLE_TIME = Second.of(1);
+
+        public static final Time CAN_ERROR_PERSIST = Second.of(2.5);
     }
 
     public final class FuelPhysicsConstants {

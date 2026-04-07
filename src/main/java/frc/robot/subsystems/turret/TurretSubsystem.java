@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volt;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -12,6 +13,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.ErrorConstants;
@@ -76,6 +78,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     private HomingStage turretHomingStage = HomingStage.SEARCHING;
     private double turretHomingStart = 0;
+
+    private double lastErrorTimestamp = 0.0;
 
     public TurretSubsystem(TurretIO io) {
         super(TurretState.IDLE, TurretState.IDLE);
@@ -206,8 +210,22 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         io.resetPitchPosition();
     }
 
+    public void checkCanHealth() {
+        double timestamp = Timer.getFPGATimestamp();
+        if (io.checkCANError()) {
+            lastErrorTimestamp = timestamp;
+        }
+
+        if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
+            RobotContainer.healthSubsystem.reportError("TurretSubsystem", ErrorConstants.SPARKMAX_CAN_ERROR);
+        } else {
+            RobotContainer.healthSubsystem.clearError("TurretSubsystem", ErrorConstants.SPARKMAX_CAN_ERROR);
+        }
+    }
+
     @Override
     public void periodic() {
+
         if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
             requestDesiredState(TurretState.STOWED, 30);
         }
@@ -369,6 +387,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
         io.setYawMotorVoltage(turretYawVoltage);
         io.setPitchMotorVoltage(turretPitchVoltage);
+
+        checkCanHealth();
 
         SmartDashboard.putNumber("Turret/Yaw Voltage", turretYawVoltage);
         SmartDashboard.putNumber("Turret/Pitch Voltage", turretPitchVoltage);

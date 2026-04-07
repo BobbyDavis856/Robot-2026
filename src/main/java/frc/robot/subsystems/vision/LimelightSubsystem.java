@@ -6,6 +6,9 @@ import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.opencv.core.Mat;
 
 import edu.wpi.first.units.measure.Angle;
@@ -18,9 +21,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.ErrorConstants;
 import frc.robot.RobotContainer;
 import frc.robot.libraries.FieldHelpers;
 import frc.robot.libraries.LimelightHelpers;
@@ -43,14 +48,39 @@ public class LimelightSubsystem extends SubsystemBase {
         VisionRejection visionRejection
     ) {}
 
+    private final Map<String, Double> lastHeartbeats = new HashMap<>();
+    private final Map<String, Double> lastHeartbeatTimes = new HashMap<>();
 
     public LimelightSubsystem() {
-
+        for (String limelight : Constants.LimelightConstants.LIMELIGHT_NAMES) {
+            lastHeartbeats.put(limelight, 0.0);
+            lastHeartbeatTimes.put(limelight, 0.0);
+        }
     }
 
     @Override
     public void periodic() {
+        boolean limelightDisconnected = false;
+
+        for (String limelight : Constants.LimelightConstants.LIMELIGHT_NAMES) {
+            double heartbeat = LimelightHelpers.getLimelightNTDouble(limelight, "hb");
+            double timestamp = Timer.getFPGATimestamp();
+            if (heartbeat != lastHeartbeats.get(limelight)) {
+                lastHeartbeats.put(limelight, heartbeat);
+                lastHeartbeatTimes.put(limelight, timestamp);
+            } else {
+                if ((timestamp - lastHeartbeatTimes.get(limelight)) > 1.0) {
+                    limelightDisconnected = true;
+                }
+            }
+        }
+
         
+        if (limelightDisconnected) {
+            RobotContainer.healthSubsystem.reportError("LimelightSubsystem", ErrorConstants.LIMELIGHT_DISCONNECTED);
+        } else {
+            RobotContainer.healthSubsystem.clearError("LimelightSubsystem", ErrorConstants.LIMELIGHT_DISCONNECTED);
+        }
     }
 
     public VisionStdDevs calculateVisionStdDevs(Pose2d visionPose, int tagCount, double averageTagDistance, ChassisSpeeds robotChassisSpeeds, AngularVelocity robotAngularVelocity) {
@@ -97,8 +127,6 @@ public class LimelightSubsystem extends SubsystemBase {
 
         for (String limelight : Constants.LimelightConstants.LIMELIGHT_NAMES) {
             LimelightHelpers.SetRobotOrientation(limelight, robotAngle.in(Degree), robotAngularVelocity.in(DegreesPerSecond), 0.0, 0.0, 0.0, 0.0);
-
-            System.out.println(LimelightHelpers.getLimelightNTDouble(limelight, "hb"));
             
             try {
                 LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
@@ -133,6 +161,5 @@ public class LimelightSubsystem extends SubsystemBase {
                 e.printStackTrace();
             }
         }
-
     }
 }

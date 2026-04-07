@@ -17,4 +17,6 @@ public interface TurretIO {
     default void resetHomingCounter() {}
 
     default void resetPitchPosition() {}
+
+    default boolean checkCANError() {return false;}
 }

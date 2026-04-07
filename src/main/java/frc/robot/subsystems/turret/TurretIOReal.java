@@ -153,5 +153,20 @@ public class TurretIOReal implements TurretIO {
     public void resetPitchPosition() {
         turretPitchEncoder.setPosition(0);
     }
+
+    @Override
+    public boolean checkCANError() {
+        turretPitchMotor.getBusVoltage();
+        if (turretPitchMotor.getFaults().can == true) {
+            return true;
+        }
+
+        turretYawMotor.getBusVoltage();
+        if (turretYawMotor.getFaults().can == true) {
+            return true;
+        }
+
+        return false;
+    }
     
 }

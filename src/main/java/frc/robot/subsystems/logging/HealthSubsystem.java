@@ -3,8 +3,10 @@ package frc.robot.subsystems.logging;
 import static edu.wpi.first.units.Units.Second;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,31 +21,39 @@ import frc.robot.Constants;
 public class HealthSubsystem extends SubsystemBase {
     public record ErrorCode (
         int priority,
-        String subsystemName,
         String errorText,
         LEDPattern ledPattern,
         boolean showEnabled,
         boolean showDisabled
     ) {};
 
-    private final Set<ErrorCode> activeErrors;
+    private final Map<ErrorCode, Set<String>> activeErrors = new HashMap<>();
 
     public HealthSubsystem() {
-        activeErrors = new HashSet<>(); 
     }
 
-    public void reportError(ErrorCode errorCode) {
-        activeErrors.add(errorCode);
+    public void reportError(String subsystem, ErrorCode errorCode) {
+        if (activeErrors.get(errorCode) == null) {
+            activeErrors.put(errorCode, new HashSet<>());
+        }
+
+        activeErrors.get(errorCode).add(subsystem);
     }
 
-    public void clearError(ErrorCode errorCode) {
-        activeErrors.remove(errorCode);
+    public void clearError(String subsystem, ErrorCode errorCode) {
+        if (activeErrors.containsKey(errorCode)) {
+            activeErrors.get(errorCode).remove(subsystem);
+            
+            if (activeErrors.get(errorCode).isEmpty()) {
+                activeErrors.remove(errorCode);
+            }
+        }
     }
 
     public ErrorCode getCurrentDisplayError() {
         boolean isEnabled = DriverStation.isEnabled();
 
-        List<ErrorCode> validErrors = activeErrors.stream()
+        List<ErrorCode> validErrors = activeErrors.keySet().stream()
                 .filter(error -> isEnabled ? error.showEnabled() : error.showDisabled())
                 .toList();
 
@@ -58,7 +68,7 @@ public class HealthSubsystem extends SubsystemBase {
 
         List<ErrorCode> tiedErrors = validErrors.stream()
                 .filter(error -> error.priority() == highestPriority)
-                .sorted(Comparator.comparing(ErrorCode::subsystemName).thenComparing(ErrorCode::errorText))
+                .sorted(Comparator.comparing(ErrorCode::errorText))
                 .toList();
 
         if (tiedErrors.size() == 1) {

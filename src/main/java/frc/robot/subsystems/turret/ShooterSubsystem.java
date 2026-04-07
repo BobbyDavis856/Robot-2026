@@ -1,9 +1,14 @@
 package frc.robot.subsystems.turret;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Second;
+
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.ErrorConstants;
+import frc.robot.RobotContainer;
 import frc.robot.libraries.SubsystemStateMachine;
 
 public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems.turret.ShooterSubsystem.ShooterState> {
@@ -17,6 +22,8 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
     private final ShooterIO io;
 
     private double shooterTargetVelocity = 0;
+
+    private double lastErrorTimestamp = 0;
 
     public ShooterSubsystem(ShooterIO io) {
         super(ShooterState.IDLE, null);
@@ -38,6 +45,19 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
 
     public void resetShooter() {
         shooterTargetVelocity = 0;
+    }
+
+    public void checkCanHealth() {
+        double timestamp = Timer.getFPGATimestamp();
+        if (io.checkCANError()) {
+            lastErrorTimestamp = timestamp;
+        }
+
+        if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
+            RobotContainer.healthSubsystem.reportError("ShooterSubsystem", ErrorConstants.SPARKMAX_CAN_ERROR);
+        } else {
+            RobotContainer.healthSubsystem.clearError("ShooterSubsystem", ErrorConstants.SPARKMAX_CAN_ERROR);
+        }
     }
 
     @Override
@@ -86,6 +106,8 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
                 io.setClosedVelocity(shooterTargetVelocity);
                 break;
         }
+
+        checkCanHealth();
 
         //SmartDashboard.putNumber("Shooter/Motor Voltage", shooterVoltage);
 

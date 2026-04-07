@@ -84,4 +84,14 @@ public class ShooterIOReal implements ShooterIO {
         //return shooterEncoder2.getVelocity();
         return shooterEncoder1.getVelocity();
     }
+
+    @Override
+    public boolean checkCANError() {
+        shooterMotor1.getBusVoltage();
+        if (shooterMotor1.getFaults().can == true) {
+            return true;
+        }
+
+        return false;
+    }
 }
