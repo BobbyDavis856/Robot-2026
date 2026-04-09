@@ -50,14 +50,16 @@ public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     }
 
     @Override
-    public void periodic() {
+    public void statePeriodicBefore() {
         if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
             requestDesiredState(KickerState.STOWED, 30);
         } else {
             requestDesiredState(KickerState.IDLE, 0); 
         }
+    }
 
-        updateDesiredState();
+    @Override
+    public void statePeriodic() {
         
         switch (getCurrentState()) {
             case IDLE:

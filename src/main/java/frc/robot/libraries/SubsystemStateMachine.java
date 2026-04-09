@@ -45,7 +45,7 @@ public abstract class SubsystemStateMachine<E extends Enum<E>> extends Subsystem
     public void restartStateTimer() {
         stateMachine.restartStateTimer();
     }
-    
+
     /**
      * Transitions the current state to the desired state
      **/
@@ -62,10 +62,13 @@ public abstract class SubsystemStateMachine<E extends Enum<E>> extends Subsystem
         stateMachine.transitionTo(newState);
     }
 
-    /**
-     * MUST BE CALLED AT THE START OF EVERY PERIODIC LOOP
-     **/
-    protected void updateDesiredState() {
+    @Override
+    public final void periodic() {
+        statePeriodicBefore();
         stateMachine.updateDesiredState();
+        statePeriodic();
     }
+
+    protected void statePeriodicBefore() {};
+    protected void statePeriodic() {};
 }

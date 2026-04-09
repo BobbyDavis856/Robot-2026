@@ -43,13 +43,16 @@ public class IntakeDeploymentSubsystem extends SubsystemStateMachine<frc.robot.s
     }
 
     @Override
-    public void periodic() {
-        updateDesiredState();
-
+    public void statePeriodicBefore() {
         // Safety Check as the desired state should only ever be RETRACTED, OR DEPLOYED
         if (getDesiredState() == IntakeDeploymentState.UNKNOWN || getDesiredState() == IntakeDeploymentState.RETRACTING || getDesiredState() == IntakeDeploymentState.DEPLOYING) {
-            requestDesiredState(IntakeDeploymentState.RETRACTED, 5);
+            requestDesiredState(IntakeDeploymentState.RETRACTED, 25);
         }
+    }
+
+    @Override
+    public void statePeriodic() {
+        
 
         switch (getCurrentState()) {
             case UNKNOWN:

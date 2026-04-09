@@ -3,15 +3,15 @@ package frc.robot.libraries;
 import edu.wpi.first.wpilibj.Timer;
 
 public class StateMachine<E extends Enum<E>> {
-    protected E currentState;
-    protected E desiredState;
+    private E currentState;
+    private E desiredState;
 
-    protected E defaultState;
+    private E defaultState;
 
-    protected int pendingPriority = -1;
-    protected E pendingState;
+    private int pendingPriority = Integer.MIN_VALUE;
+    private E pendingState;
 
-    protected final Timer stateTimer = new Timer();
+    private final Timer stateTimer = new Timer();
 
     /**
      * 
@@ -93,13 +93,13 @@ public class StateMachine<E extends Enum<E>> {
     }
 
     /**
-     * MUST BE CALLED AT THE START OF EVERY PERIODIC LOOP
+     * Must be called for the requested state to be applied
      **/
     public void updateDesiredState() {
         if (pendingState != null) {
             this.desiredState = this.pendingState;
         }
-        this.pendingPriority = -1;
+        this.pendingPriority = Integer.MIN_VALUE;
         this.pendingState = this.defaultState;
     }
 }

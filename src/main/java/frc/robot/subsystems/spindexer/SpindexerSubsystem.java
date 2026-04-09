@@ -50,14 +50,16 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
     }
 
     @Override
-    public void periodic() {
+    public void statePeriodicBefore() {
         if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
             requestDesiredState(SpindexerState.STOWED, 30);
         } else {
             requestDesiredState(SpindexerState.IDLE, 0);
         }
+    }
 
-        updateDesiredState();
+    @Override
+    public void statePeriodic() {
 
         switch (getCurrentState()) {
             case IDLE:

@@ -41,9 +41,8 @@ public class IntakeSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     }
 
     @Override
-    public void periodic() {
-        updateDesiredState();
-
+    public void statePeriodic() {
+        
         switch (getCurrentState()) {
             case IDLE:
                 if (getDesiredState() == IntakeState.READY_REVERSE) {

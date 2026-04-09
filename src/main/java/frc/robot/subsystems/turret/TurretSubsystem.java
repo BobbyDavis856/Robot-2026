@@ -224,18 +224,19 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     }
 
     @Override
-    public void periodic() {
-
+    public void statePeriodicBefore() {
         if (RobotContainer.calculationSubsystem.getZone() == Zone.TRENCH) {
             requestDesiredState(TurretState.STOWED, 30);
         }
 
         // Safety Check as the desired state should only ever IDLE, HOMING, STOWED, READY, or MANUAL
         if (getDesiredState() == TurretState.AIMING) {
-            requestDesiredState(TurretState.STOWED, 6);
+            requestDesiredState(TurretState.IDLE, 25);
         }
+    }
 
-        updateDesiredState();
+    @Override
+    public void statePeriodic() {
 
         switch (getCurrentState()) {
             case IDLE:
@@ -252,6 +253,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     resetTurretYaw();
                     resetTurretHoming();
                     transitionTo(TurretState.HOMING);
+                } else if (getDesiredState() == TurretState.MANUAL) {
+                    transitionTo(TurretState.MANUAL);
                 }
 
                 break;
@@ -275,7 +278,10 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     transitionTo(TurretState.HOMING);
                 } else if (getDesiredState() == TurretState.READY) {
                     transitionTo(TurretState.AIMING);
+                } else if (getDesiredState() == TurretState.MANUAL) {
+                    transitionTo(TurretState.MANUAL);
                 }
+
                 break;
 
             case AIMING:
@@ -291,6 +297,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) <= Constants.TurretConstants.TURRET_YAW_READY_THRESHOLD.in(Radian)
                 ) {
                     transitionTo(TurretState.READY);
+                } else if (getDesiredState() == TurretState.MANUAL) {
+                    transitionTo(TurretState.MANUAL);
                 }
 
                 break;
@@ -308,6 +316,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
                     Math.abs(getTurretTargetYaw().in(Radian) - getTurretYaw().in(Radian)) >= (Constants.TurretConstants.TURRET_YAW_READY_THRESHOLD.in(Radian) + 0.02)
                 ) {
                     transitionTo(TurretState.AIMING);
+                } else if (getDesiredState() == TurretState.MANUAL) {
+                    transitionTo(TurretState.MANUAL);
                 }
 
                 break;

@@ -61,13 +61,15 @@ public class ShooterSubsystem extends SubsystemStateMachine<frc.robot.subsystems
     }
 
     @Override
-    public void periodic() {
-        updateDesiredState();
-
+    public void statePeriodicBefore() {
         // Safety Check as the desired state should only ever IDLE or READY
         if (getDesiredState() == ShooterState.SPOOLING) {
-            requestDesiredState(ShooterState.IDLE, 4);
+            requestDesiredState(ShooterState.IDLE, 25);
         }
+    }
+
+    @Override
+    public void statePeriodic() {
         
         
         switch (getCurrentState()) {
