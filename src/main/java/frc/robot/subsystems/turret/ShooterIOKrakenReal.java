@@ -30,7 +30,7 @@ public class ShooterIOKrakenReal implements ShooterIO {
         shooterConfig1.MotorOutput.Inverted = Constants.ShooterConstants.SHOOTER_MOTOR_1_INVERTED 
             ? InvertedValue.Clockwise_Positive 
             : InvertedValue.CounterClockwise_Positive;
-        shooterConfig1.Feedback.SensorToMechanismRatio = 1.0 / Constants.ShooterConstants.SHOOTER_GEAR_RATIO;
+        shooterConfig1.Feedback.SensorToMechanismRatio = Constants.ShooterConstants.SHOOTER_GEAR_RATIO;
         shooterConfig1.Slot0.kP = Constants.ShooterConstants.SHOOTER_P;
         shooterConfig1.Slot0.kI = Constants.ShooterConstants.SHOOTER_I;
         shooterConfig1.Slot0.kD = Constants.ShooterConstants.SHOOTER_D;
@@ -40,7 +40,7 @@ public class ShooterIOKrakenReal implements ShooterIO {
         shooterConfig1.CurrentLimits.SupplyCurrentLimitEnable = true;
         shooterConfig1.CurrentLimits.SupplyCurrentLimit = 60.0;
         shooterConfig1.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
-        shooterConfig1.CurrentLimits.SupplyCurrentLowerLimit = 0.5;
+        shooterConfig1.CurrentLimits.SupplyCurrentLowerTime = 0.5;
         shooterConfig1.CurrentLimits.StatorCurrentLimitEnable = true;
         shooterConfig1.CurrentLimits.StatorCurrentLimit = 60.0;
         shooterMotor1.getConfigurator().apply(shooterConfig1);
