@@ -45,6 +45,7 @@ public class HealthSubsystem extends SubsystemBase {
     private final Map<ErrorCode, Set<String>> activeErrors = new HashMap<>();
 
     public HealthSubsystem() {
+        
     }
 
     public void reportError(String subsystem, ErrorCode errorCode) {

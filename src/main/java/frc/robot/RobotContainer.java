@@ -167,6 +167,7 @@ public class RobotContainer {
 		}
 
 		autoChooser.addOption("Home Turret Command", new HomeTurretCommand());
+		autoChooser.addOption("Shooter Flywheel SysID Command", shooterSubsystem.getFlywheelSysIDCommand());
 
 		SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -216,6 +217,8 @@ public class RobotContainer {
 		NamedCommands.registerCommand("ActivateKickerCommand", new ActivateKickerCommand());
 		NamedCommands.registerCommand("ActivateShooterCommand", new ActivateShooterCommand());
 		NamedCommands.registerCommand("ActivateIntakeCommand", new ActivateIntakeCommand());
+
+		NamedCommands.registerCommand("SmartShootCommand", new SmartShootCommand());
 	}
 
 	private void configureBindings() {

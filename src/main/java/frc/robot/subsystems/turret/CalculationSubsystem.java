@@ -237,9 +237,6 @@ public class CalculationSubsystem {
             Constants.FuelPhysicsConstants.TPS
         ));
 
-        SmartDashboard.putNumber("DEBUG/CURRENT", Math.sqrt(fieldSpeeds.vxMetersPerSecond * fieldSpeeds.vxMetersPerSecond + fieldSpeeds.vyMetersPerSecond * fieldSpeeds.vyMetersPerSecond));
-        SmartDashboard.putNumber("DEBUG/TARGET", Math.sqrt(targetSpeeds.vxMetersPerSecond * targetSpeeds.vxMetersPerSecond + targetSpeeds.vyMetersPerSecond * targetSpeeds.vyMetersPerSecond));
-
         TargetSolution lastSolution = getTargetSolutions();
 
         SmartDashboard.putNumberArray("Auto Aim/Target Position", PoseHelpers.convertTranslationToNumbers(targetPosition));

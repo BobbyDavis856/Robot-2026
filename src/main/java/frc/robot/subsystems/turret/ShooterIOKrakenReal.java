@@ -37,6 +37,12 @@ public class ShooterIOKrakenReal implements ShooterIO {
         shooterConfig1.Slot0.kS = Constants.ShooterConstants.SHOOTER_S.in(Volt);
         shooterConfig1.Slot0.kV = Constants.ShooterConstants.SHOOTER_V;
         shooterConfig1.Slot0.kA = Constants.ShooterConstants.SHOOTER_A;
+        shooterConfig1.CurrentLimits.SupplyCurrentLimitEnable = true;
+        shooterConfig1.CurrentLimits.SupplyCurrentLimit = 60.0;
+        shooterConfig1.CurrentLimits.SupplyCurrentLowerLimit = 40.0;
+        shooterConfig1.CurrentLimits.SupplyCurrentLowerLimit = 0.5;
+        shooterConfig1.CurrentLimits.StatorCurrentLimitEnable = true;
+        shooterConfig1.CurrentLimits.StatorCurrentLimit = 60.0;
         shooterMotor1.getConfigurator().apply(shooterConfig1);
 
         /*
