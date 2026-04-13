@@ -159,7 +159,7 @@ public final class Constants {
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
         public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(5);
-        public static final Current KICKER_REVERSE_CURRENT = Amp.of(28);
+        public static final Current KICKER_REVERSE_CURRENT = Amp.of(40);
     }
 
     public final class SpindexerConstants {
@@ -167,7 +167,7 @@ public final class Constants {
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = true;
         public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(7);
-        public static final Current SPINDEXER_REVERSE_CURRENT = Amp.of(35);
+        public static final Current SPINDEXER_REVERSE_CURRENT = Amp.of(40);
     }
 
     public final class OperatorConstants {
