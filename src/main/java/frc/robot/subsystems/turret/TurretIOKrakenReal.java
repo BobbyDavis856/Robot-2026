@@ -156,7 +156,7 @@ public class TurretIOKrakenReal implements TurretIO {
 
     @Override
     public boolean checkCANError() {
-        if (turretPitchMotor.isConnected()) {
+        if (!turretPitchMotor.isConnected()) {
             return true;
         }
 

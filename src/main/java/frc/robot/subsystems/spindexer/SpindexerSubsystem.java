@@ -77,8 +77,8 @@ public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsyste
                 }
                 break;
             case STOWED:
-                if (getDesiredState() == SpindexerState.STOWED) {
-                    transitionTo(SpindexerState.STOWED);
+                if (getDesiredState() == SpindexerState.READY) {
+                    transitionTo(SpindexerState.READY);
                 } else if (getDesiredState() == SpindexerState.READY_REVERSE) {
                     transitionTo(SpindexerState.READY_REVERSE);
                 } else if (getDesiredState() == SpindexerState.IDLE) {

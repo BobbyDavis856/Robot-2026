@@ -80,7 +80,7 @@ public final class Constants {
         public static final Voltage TURRET_YAW_HOMING_REFINING_VOLTAGE = Volt.of(-0.25);
         public static final Angle TURRET_YAW_READY_THRESHOLD = Radian.of(0.1);
     
-        public static final Angle TURRET_YAW_OFFSET = Degree.of(-3);
+        public static final Angle TURRET_YAW_OFFSET = Degree.of(-1);
         public static final Angle TURRET_YAW_LOWER_LIMIT = Degree.of(-180);
         public static final Angle TURRET_YAW_UPPER_LIMIT = Degree.of(180);
 
@@ -104,7 +104,7 @@ public final class Constants {
         public static final Angle TURRET_PITCH_LOWER_LIMIT = Degree.of(1);
         public static final Translation3d TURRET_PIVOT_OFFSET = new Translation3d(
             -0.2,
-            0.0,
+            0.25,
             0.18
         ); // In meters
         public static final Distance TURRET_PIVOT_FUEL_OFFSET = Meter.of(0.22);
@@ -125,19 +125,18 @@ public final class Constants {
 
         public static final double SHOOTER_GEAR_RATIO = 1; // Rotations of the motor for one rotation of the wheels
 
-        public static final double SHOOTER_P = 0.03;
+        public static final double SHOOTER_P = 1;
         public static final double SHOOTER_I = 0.0;
-        public static final double SHOOTER_D = 0.01;
+        public static final double SHOOTER_D = 0.0;
         public static final Voltage SHOOTER_S = Volts.of(0.1);
-        public static final double SHOOTER_V = 0.1175; // Unit is V/(rotations/s)
+        public static final double SHOOTER_V = 0.125; // Unit is V/(rotations/s)
         public static final double SHOOTER_A = 0.005; // Unit is V/(rotations/s^2)
         public static final Distance SHOOTER_WHEEL_RADIUS = Inch.of(2);
-        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(90);
-        public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(30);
-        public static final AngularVelocity SHOOTER_READY_THRESHOLD = RotationsPerSecond.of(4);
+        public static final AngularVelocity SHOOTER_MAX_VELOCITY = RotationsPerSecond.of(91);
+        public static final AngularVelocity SHOOTER_MIN_VELOCITY = RotationsPerSecond.of(5);
+        public static final AngularVelocity SHOOTER_READY_THRESHOLD = RotationsPerSecond.of(6);
 
         public static final Angle SHOOTER_YAW_DEADZONE = Degree.of(10);
-           
     }
     
     public final class LightConstants {
@@ -159,15 +158,15 @@ public final class Constants {
         public static final int KICKER_MOTOR_ID = 28;
         public static final boolean KICKER_MOTOR_INVERTED = false;
         public static final Voltage KICKER_MOTOR_VOLTAGE = Volt.of(5);
-        public static final Current KICKER_REVERSE_CURRENT = Amp.of(40);
+        public static final Current KICKER_REVERSE_CURRENT = Amp.of(400);
     }
 
     public final class SpindexerConstants {
         public static final boolean ENABLED = true;
         public static final int SPINDEXER_MOTOR_ID = 29;
         public static final boolean SPINDEXER_MOTOR_INVERTED = true;
-        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(7);
-        public static final Current SPINDEXER_REVERSE_CURRENT = Amp.of(40);
+        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(10);
+        public static final Current SPINDEXER_REVERSE_CURRENT = Amp.of(400);
     }
 
     public final class OperatorConstants {
@@ -187,7 +186,7 @@ public final class Constants {
         public static final int INTAKE_DEPLOYMENT_MOTOR_ID_2 = 17;
         public static final boolean INTAKE_DEPLOYMENT_MOTOR_INVERTED_2 = true;
 
-        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(1.0);
+        public static final Voltage INTAKE_DEPLOYMENT_MOTOR_VOLTAGE = Volt.of(2.0);
         public static final Voltage INTAKE_DEPLOYMENT_MOTOR_HOLDING_VOLTAGE = Volt.of(0.3);
 
         public static final int INTAKE_MOTOR_ID_1 = 14;
@@ -216,7 +215,7 @@ public final class Constants {
         public static final int TPS = 25;
         public static final int MAX_STEPS = 15;
         public static final double DRAG_CONSTANT = 0.6;
-        public static final double EFFICENCY = 0.455;
+        public static final double EFFICENCY = 0.45;
         public static final double ROT_DRAG_CONSTANT = 0.05;
         public static final double LIFT_CONSTANT = 0.35;
         public static final double CROSS_SECTION_AREA = 0.01767;
