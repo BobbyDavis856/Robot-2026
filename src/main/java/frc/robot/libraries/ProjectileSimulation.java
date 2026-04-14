@@ -115,7 +115,6 @@ public class ProjectileSimulation {
     ) {};
 
     public record TargetInput (
-        LinearVelocity startLaunchSpeed,
         AngularVelocity launchAngularYaw,
         Angle robotYaw,
         Translation2d robotVelocity,
@@ -482,7 +481,6 @@ public class ProjectileSimulation {
 
     public TargetSolution calculateLaunchAngleSimulation(TargetInput targetInput) {
         return calculateLaunchAngleSimulation(
-            targetInput.startLaunchSpeed,
             targetInput.launchAngularYaw,
             targetInput.robotYaw,
             targetInput.robotVelocity,
@@ -495,7 +493,6 @@ public class ProjectileSimulation {
 
     /**
      * 
-     * @param startLaunchSpeed The starting launch speed of the projectile as a {@link LinearVelocity}
      * @param launchAngularYaw The angular yaw of the projectile as a {@link AngularVelocity}
      * @param robotVelocity The field relative velocity of the robot as a {@link Translation2d} in Meters/Second
      * @param targetPosition The robot relative position of the target (Rotation is field relative) as a {@link Translation3d} in Meters
@@ -503,16 +500,10 @@ public class ProjectileSimulation {
      * @param tps The ticks per second that physics will be calculated at
      * @return The target solution
      */
-    public TargetSolution calculateLaunchAngleSimulation(LinearVelocity startLaunchSpeed, AngularVelocity launchAngularYaw, Angle robotYaw, Translation2d robotVelocity, Translation3d targetPosition, double efficiency, int maxSteps, int tps) {
+    public TargetSolution calculateLaunchAngleSimulation(AngularVelocity launchAngularYaw, Angle robotYaw, Translation2d robotVelocity, Translation3d targetPosition, double efficiency, int maxSteps, int tps) {
         double startTime = Timer.getFPGATimestamp();
         
         Distance horizontalDistance = Meter.of(Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2)));
-
-        Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(startLaunchSpeed, horizontalDistance, Meter.of(targetPosition.getZ() - this.turretOffset.getZ()));
-
-        if (launchAnglePitch1Temp == null) {
-            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), Second.of(Timer.getTimestamp()), new TargetDebug(0, 0, 0, Second.of(Timer.getFPGATimestamp() - startTime)));
-        }
 
         double speedLimitLower = convertShooterSpeedToVelocity(RadiansPerSecond.of(this.shooterMinVelocity), Meter.of(shooterWheelRadius), efficiency).in(MetersPerSecond);
         double speedLimitUpper = convertShooterSpeedToVelocity(RadiansPerSecond.of(this.shooterMaxVelocity), Meter.of(shooterWheelRadius), efficiency).in(MetersPerSecond);
@@ -522,6 +513,13 @@ public class ProjectileSimulation {
         double launchSpeed = estimateShootingVelocity(targetPosition.toTranslation2d(), MetersPerSecond.of(theoreticalMaxSpeed), robotVelocity).in(MetersPerSecond);
 
         launchSpeed = MathUtil.clamp(launchSpeed, speedLimitLower, speedLimitUpper);
+
+
+        Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(MetersPerSecond.of(speedLimitUpper), horizontalDistance, Meter.of(targetPosition.getZ() - this.turretOffset.getZ()));
+
+        if (launchAnglePitch1Temp == null) {
+            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(0), Radians.of(0.0), Radians.of(0.0), Second.of(Timer.getTimestamp()), new TargetDebug(0, 0, 0, Second.of(Timer.getFPGATimestamp() - startTime)));
+        }
 
         double launchPitch = launchAnglePitch1Temp.in(Radians);
         

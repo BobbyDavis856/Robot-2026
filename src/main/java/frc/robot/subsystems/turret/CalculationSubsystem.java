@@ -78,7 +78,7 @@ public class CalculationSubsystem {
     private Thread projectileThread;
 
     public CalculationSubsystem() {
-        targetInputs = new AtomicReference<>(new TargetInput(MetersPerSecond.of(1), DegreesPerSecond.of(0), Radian.of(0), new Translation2d(), new Translation3d(), 0.5, 1, 1));
+        targetInputs = new AtomicReference<>(new TargetInput(DegreesPerSecond.of(0), Radian.of(0), new Translation2d(), new Translation3d(), 0.5, 1, 1));
         targetSolutions = new AtomicReference<>(new TargetSolution(TargetErrorCode.IDEAL_PITCH, MetersPerSecond.of(10), Degree.of(0), Degree.of(0), Second.of(0), new TargetDebug(0, 0, 0, Second.of(0))));
     }
 
@@ -220,11 +220,6 @@ public class CalculationSubsystem {
         );
 
         setTargetInputs(new TargetInput(
-            getProjectileSimulation().convertShooterSpeedToVelocity(
-                Constants.ShooterConstants.SHOOTER_MAX_VELOCITY,
-                Constants.ShooterConstants.SHOOTER_WHEEL_RADIUS,
-                Constants.FuelPhysicsConstants.EFFICENCY
-            ),
             DegreesPerSecond.of(0),
             botPose.getRotation().getMeasure(),
             new Translation2d(
