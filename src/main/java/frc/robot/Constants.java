@@ -140,8 +140,7 @@ public final class Constants {
     }
     
     public final class LightConstants {
-        public static final int LIGHT_PORT_1 = 0;
-        public static final int LIGHT_PORT_2 = 0;
+        public static final int LIGHT_PORT = 0;
 
         public static final int LIGHT_LENGTH_1 = 80;
         public static final int LIGHT_LENGTH_2 = 80;
