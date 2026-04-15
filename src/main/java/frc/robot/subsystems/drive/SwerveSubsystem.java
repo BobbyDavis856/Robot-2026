@@ -175,8 +175,6 @@ public class SwerveSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-        RobotContainer.limelightSubsystem.getVisionEstimate();
-
         checkCanHealth();
         checkAngleAbsoluteEncodersHealth();
         checkPigeonHealth();
