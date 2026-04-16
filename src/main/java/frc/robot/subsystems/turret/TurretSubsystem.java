@@ -81,6 +81,8 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
 
     private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
 
+    private boolean rotationalVelocityCompensation = false;
+
     public TurretSubsystem(TurretIO io) {
         super(TurretState.IDLE, TurretState.IDLE);
 
@@ -97,18 +99,10 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     public void setTurretYaw(Angle angle, boolean rotationalVelocityCompensation) {
         double clampedAngle = MathUtil.clamp(angle.in(Radian), Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian), Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian));
 
-        double targetVelocity = 0;
-        if (rotationalVelocityCompensation) {
-            double robotVelocity = RobotContainer.swerveSubsystem.getAngularVelocity().in(RadiansPerSecond);
-            if (angle.in(Radian) > Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian)
-                && angle.in(Radian) < Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian) 
-                && Math.abs(robotVelocity) > 0.01) {
-                targetVelocity = robotVelocity;
-            }
-        }
+        this.rotationalVelocityCompensation = rotationalVelocityCompensation;
 
         turretYawPID.setGoal(
-            new TrapezoidProfile.State(clampedAngle, targetVelocity)
+            clampedAngle
         );
     }
 
@@ -163,8 +157,10 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
     }
 
     private double calculateTurretYawVoltage() {
+        double currentYaw = io.getYawRadians();
+
         double turretYawVoltage = MathUtil.clamp(
-            turretYawPID.calculate(io.getYawRadians()) * 1.5,
+            turretYawPID.calculate(currentYaw) * 1.5,
             -0.75,
             0.75
         );
@@ -174,6 +170,14 @@ public class TurretSubsystem extends SubsystemStateMachine<frc.robot.subsystems.
         TrapezoidProfile.State turretYawState = turretYawPID.getSetpoint();
         turretYawVoltage += turretYawFF.calculateWithVelocities(turretPrevYawSetpointVelocity, turretYawState.velocity);
 
+        if (this.rotationalVelocityCompensation) {
+            if (currentYaw > Constants.TurretConstants.TURRET_YAW_LOWER_LIMIT.in(Radian)
+                && currentYaw < Constants.TurretConstants.TURRET_YAW_UPPER_LIMIT.in(Radian)) {
+                double angularVelocity = RobotContainer.swerveSubsystem.getAngularVelocity().in(RadiansPerSecond);
+
+                turretYawVoltage += Constants.TurretConstants.TURRET_YAW_V * angularVelocity;
+            }
+        }
         
         turretYawVoltage = MathUtil.clamp(
             turretYawVoltage, 
