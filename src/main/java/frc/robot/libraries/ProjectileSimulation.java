@@ -464,7 +464,7 @@ public class ProjectileSimulation {
         }
 
         double baseVelocity = MathUtil.interpolate(
-            speedLimitUpper.in(MetersPerSecond) * 0.175,
+            speedLimitUpper.in(MetersPerSecond) * 0.18,
             speedLimitUpper.in(MetersPerSecond),
             MathUtil.inverseInterpolate(0, 32.5, targetDistance)
         );

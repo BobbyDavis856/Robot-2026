@@ -130,7 +130,7 @@ public class RobotContainer {
 	
 	private int lastTeam = -1;
 
-	private LinearFilter batteryVoltageFilter = LinearFilter.movingAverage(50);
+	private LinearFilter batteryVoltageFilter = LinearFilter.movingAverage(400);
 
 	private boolean questNavHomed = false;
 

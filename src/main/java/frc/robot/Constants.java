@@ -111,7 +111,7 @@ public final class Constants {
 
         public static final Angle TURRET_STOWED_PITCH_ANGLE = TURRET_PITCH_LOWER_LIMIT;
 
-        public static final Time TURRET_LATENCY = Second.of(0.00001);
+        public static final Time TURRET_LATENCY = Second.of(0.05);
     }
 
     public final class ShooterConstants {
