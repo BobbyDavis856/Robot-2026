@@ -59,6 +59,16 @@ public class QuestNavSubsystem extends SubsystemBase {
     public void periodic() {
         questNav.commandPeriodic();
 
+        SmartDashboard.putBoolean("QuestNav/Connected", questNav.isConnected());
+        SmartDashboard.putBoolean("QuestNav/Tracking", questNav.isTracking());
+        SmartDashboard.putNumber("QuestNav/Latency", questNav.getLatency());
+        questNav.getBatteryPercent().ifPresent(
+            battery -> SmartDashboard.putNumber("QuestNav/Battery Percent", battery));
+        questNav.getTrackingLostCounter().ifPresent(
+            count -> SmartDashboard.putNumber("QuestNav/Tracking Lost Count", count));
+    }
+
+    public void getVisionEstimate() {
         PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
 
         for (PoseFrame questFrame : questFrames) {
@@ -81,14 +91,5 @@ public class QuestNavSubsystem extends SubsystemBase {
                 
             }
         }
-
-        SmartDashboard.putBoolean("QuestNav/Connected", questNav.isConnected());
-        SmartDashboard.putBoolean("QuestNav/Tracking", questNav.isTracking());
-        SmartDashboard.putNumber("QuestNav/Latency", questNav.getLatency());
-        questNav.getBatteryPercent().ifPresent(
-            battery -> SmartDashboard.putNumber("QuestNav/Battery Percent", battery));
-        questNav.getTrackingLostCounter().ifPresent(
-            count -> SmartDashboard.putNumber("QuestNav/Tracking Lost Count", count));
-
     }
 }

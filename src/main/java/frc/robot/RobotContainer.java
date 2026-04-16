@@ -345,7 +345,7 @@ public class RobotContainer {
 
 	public void periodic() {
 
-		List<VisionMeasurement> visionMeasurements = RobotContainer.limelightSubsystem.getVisionEstimate();
+		List<VisionMeasurement> visionMeasurements = limelightSubsystem.getVisionEstimate();
 
 		double stdDevsThreshold = (questNavHomed ? Constants.QuestConstants.STD_DEV_THRESHOLD : Constants.QuestConstants.INITAL_STD_DEV_THRESHOLD);
 
@@ -355,6 +355,11 @@ public class RobotContainer {
 				questNavSubsystem.resetPose(new Pose3d(visionMeasurement.robotPose()));
 				break;
 			}
+		}
+
+		SmartDashboard.putBoolean("QuestNav/Homed", questNavHomed);
+		if (questNavHomed) {
+			questNavSubsystem.getVisionEstimate();
 		}
 		
 		Pose2d botPose = swerveSubsystem.getPose2d();
