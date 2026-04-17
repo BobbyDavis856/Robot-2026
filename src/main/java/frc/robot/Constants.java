@@ -258,7 +258,7 @@ public final class Constants {
 
     public final class QuestConstants {
         public static final boolean ENABLED = false;
-        public static final Transform3d ROBOT_TO_QUEST = new Transform3d(-0.2675, -0.2225, 0.52, new Rotation3d(0, 15, -90));
+        public static final Transform3d ROBOT_TO_QUEST = new Transform3d(-0.2675, -0.2225, 0.52, new Rotation3d(0, -15, -90));
 
         public static final double INITAL_STD_DEV_THRESHOLD = 1.2;
         public static final double STD_DEV_THRESHOLD = 0.7;
