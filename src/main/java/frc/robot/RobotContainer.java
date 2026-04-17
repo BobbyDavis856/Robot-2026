@@ -124,7 +124,7 @@ public class RobotContainer {
 	public static Supplier<ChassisSpeeds> swerveChassisSpeedsSupplier = () -> {return new ChassisSpeeds();};
 
 	public static boolean rotationalAiming = false;
-	private boolean turretHomed = false;
+	private static boolean turretHomed = false;
 	private Command turretHomeCommand;
 
 	public static Command driveFieldOrientedAngularVelocity;
@@ -316,6 +316,10 @@ public class RobotContainer {
 		}
 	}
 
+	public static void setTurretHomed() {
+		turretHomed = true;
+	}
+
 	public void initAll() {
 
 		if (Robot.isReal()) {
@@ -339,7 +343,7 @@ public class RobotContainer {
 			if (Robot.isReal()) {
 				CommandScheduler.getInstance().cancel(turretHomeCommand);
 
-				turretHomeCommand = new SequentialCommandGroup(new HomeTurretCommand(), Commands.runOnce(() -> {turretHomed = true;}));
+				turretHomeCommand = new HomeTurretCommand();
 				CommandScheduler.getInstance().schedule(turretHomeCommand);
 			} else {
 				turretHomed = true;

@@ -1,6 +1,7 @@
 package frc.robot.commands.turret;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 
@@ -38,7 +39,11 @@ public class HomeTurretCommand extends Command{
     }
 
     @Override
+    
     public void end(boolean interrupted) {
+        if (!interrupted) {
+            RobotContainer.setTurretHomed();
+        }
         RobotContainer.turretSubsystem.requestDesiredState(TurretState.IDLE, 5);
     }
 }
