@@ -1,5 +1,7 @@
 package frc.robot.subsystems.spindexer;
 
+import static edu.wpi.first.units.Units.Amp;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -19,7 +21,7 @@ public class SpindexerIOReal implements SpindexerIO {
         spindexerConfig = new SparkMaxConfig();
         spindexerConfig.idleMode(IdleMode.kBrake);
         spindexerConfig.inverted(Constants.SpindexerConstants.SPINDEXER_MOTOR_INVERTED);
-        spindexerConfig.smartCurrentLimit(40); 
+        spindexerConfig.smartCurrentLimit((int) Constants.SpindexerConstants.SPINDEXER_MOTOR_CURRENT_LIMIT.in(Amp)); 
         spindexerMotor.configure(spindexerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 

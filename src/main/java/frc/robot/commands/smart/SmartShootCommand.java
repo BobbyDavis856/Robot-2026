@@ -40,8 +40,8 @@ public class SmartShootCommand extends Command {
             case FORWARD:
                 if (shootStateMachine.getStateTimer() > 0.5) {
                     if (overCurrentDebouncer.calculate(
-                        RobotContainer.spindexerSubsystem.getMotorCurrent().in(Amp) >= Constants.SpindexerConstants.SPINDEXER_REVERSE_CURRENT.in(Amp)
-                        || RobotContainer.kickerSubsystem.getMotorCurrent().in(Amp) >= Constants.KickerConstants.KICKER_REVERSE_CURRENT.in(Amp))) {
+                        RobotContainer.spindexerSubsystem.getMotorCurrent().in(Amp) >= 50
+                        || RobotContainer.kickerSubsystem.getMotorCurrent().in(Amp) >= 50)) {
                         shootStateMachine.transitionTo(SmartShootStatus.REVERSE);
                     }
                 }
