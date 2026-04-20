@@ -1,5 +1,5 @@
 # Structure
-The code follows the standard wpilib convention of commands and subsystems. Subsystems have been split into folders containing the subsystems and io files related to the part of the robot.
+The code follows the standard WPIlib convention of commands and subsystems. Subsystems have been split into folders containing the subsystems and IO files related to the part of the robot.
 
 ```
 src/main/
@@ -96,8 +96,6 @@ Each IO abstraction layer consists of a base `____IO.java` class and a class wit
 
 ### SpindexerIO.java:
 ```java
-package frc.robot.subsystems.spindexer;
-
 public interface SpindexerIO {
     default void setMotorVoltage(double voltage) {}
 
@@ -109,17 +107,6 @@ public interface SpindexerIO {
 
 ### SpindexerIOReal.java:
 ```java
-package frc.robot.subsystems.spindexer;
-
-import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
-
-import frc.robot.Constants;
-
 public class SpindexerIOReal implements SpindexerIO {
     private final SparkMaxConfig spindexerConfig;
     private final SparkMax spindexerMotor;
@@ -178,22 +165,6 @@ While the architecture is pretty elegant and worked very well there are some imp
 
 ### SpindexerSubsystem.java:
 ```java
-package frc.robot.subsystems.spindexer;
-
-import static edu.wpi.first.units.Units.Amp;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volt;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
-import frc.robot.ErrorConstants;
-import frc.robot.RobotContainer;
-import frc.robot.libraries.SubsystemStateMachine;
-import frc.robot.subsystems.turret.CalculationSubsystem.Zone;
-
 public class SpindexerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.spindexer.SpindexerSubsystem.SpindexerState> {
 
     public enum SpindexerState {
@@ -328,7 +299,7 @@ The class extends `SubsystemStateMachine` and passes a type of an `Enum` contain
 # Units
 WPILib provides a helpful `Units` library that allows unit safe varibles. This provides several advantages for the code:
  - Prevent mistakes involving incorect units in calculations
- - Automatically converts bettween units
+ - Automatically converts between units
  - Makes the codes intent much more explicit
  - Prevents passing in the wrong units into a function
 
@@ -346,4 +317,56 @@ I would strongly recomend you use the `Units` library in your code. You can find
 # Constants
 This project uses a central file called `Constants.java` to store the constants for every part of the code. Just like how the subsystem files are organized into folders, the constants are organized into sub classes.
 ```java
- 
+public final class Constants {
+    public final class SpindexerConstants {
+        public static final boolean ENABLED = true;
+        public static final int SPINDEXER_MOTOR_ID = 29;
+        public static final boolean SPINDEXER_MOTOR_INVERTED = true;
+        public static final Voltage SPINDEXER_MOTOR_VOLTAGE = Volt.of(12);
+        public static final Current SPINDEXER_MOTOR_CURRENT_LIMIT = Amp.of(30);
+    }
+}
+```
+
+# Localization
+For the robot to perform well in a competition it needs to know precisly where it is on the field. This robot uses Wheel Odometry, Limelight, and QuestNav.
+## Wheel Odometry
+Wheel odometry updates the fastest and is what the robot will use most of the time. Wheel odometry is accurate but it has a few caveats namly its inability to deal with wheel slip, it only works when on the ground, and its dependance on knowing its starting position. Wheel odometry is what is known as relative positioning. It knows where it is relative to its starting position but not its actual position.
+## Limelight
+Limelights are used to give the robot absolute position on the field. It updates slower than wheel odometry but its main advantage is that it provides absolute position on the field. This does come with the caveat that the limelight needs to see an april tag to know where it is on the field. The number of tags that the limelight can see will influence how accurate its position is. With one tag, even when using `MegaTag2` the limelights position is not that accurate. With two or more tags the limelights position becomes much more accurate. One of the most important parts of limelight localization is determining the standard deviations of the limelights position. Standard deviations represent how confident the robot should be in the limelights mesuremen with lower values representing higher confidence. Here is how it is implemented in this code
+```java
+public VisionStdDevs calculateVisionStdDevs(Pose2d visionPose, int tagCount, double averageTagDistance, ChassisSpeeds robotChassisSpeeds, AngularVelocity robotAngularVelocity) {
+    if (tagCount == 0) {
+        return new VisionStdDevs(Double.MAX_VALUE, VisionRejection.NO_TAGS);
+    }
+
+    if (Math.abs(robotAngularVelocity.in(RadiansPerSecond)) > (Math.PI * 2)) {
+        return new VisionStdDevs(Double.MAX_VALUE, VisionRejection.MAX_ANGULAR_VELOCITY);
+    }
+
+    if (!FieldHelpers.poseInField(visionPose)) {
+        return new VisionStdDevs(Double.MAX_VALUE, VisionRejection.OUT_OF_FIELD_BOUNDS);
+    }
+    
+    double robotTranslationalVelocity = Math.hypot(robotChassisSpeeds.vxMetersPerSecond, robotChassisSpeeds.vyMetersPerSecond);
+
+    double stdDevs = Math.abs(robotAngularVelocity.in(DegreesPerSecond)) / 720.0;
+
+    stdDevs += robotTranslationalVelocity / 10.0;
+
+    if (tagCount == 1) {
+        if (averageTagDistance >= 5) {
+            return new VisionStdDevs(Double.MAX_VALUE, VisionRejection.SINGLE_TAG_MAX_DISTANCE);
+        }
+
+        stdDevs += (Constants.LimelightConstants.SINGLE_TAG_STARTING_STD_DEV + (Math.pow(averageTagDistance, 2.0) * Constants.LimelightConstants.SINGLE_TAG_DISTANCE_FACTOR));
+    } else {
+        stdDevs += (Constants.LimelightConstants.MULTI_TAG_STARTING_STD_DEV + (averageTagDistance * Constants.LimelightConstants.MULTI_TAG_DISTANCE_FACTOR));
+    }
+
+    stdDevs = Math.max(stdDevs, 0.05);
+
+    return new VisionStdDevs(stdDevs, VisionRejection.NONE);
+}
+```
+This code calculates the std devs of a limelight mesurement based on `visionPose`, `tagCount`, `averageTagDistance`, `robotChassisSpeeds`, and `robotAngularVelocity`. The code first filters for obvious bad mesurements like when the mesurement is out of the field perimeter. Then 
