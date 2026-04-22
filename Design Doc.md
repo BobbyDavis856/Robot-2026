@@ -423,7 +423,7 @@ Just like how subsystems use IO abstractions for their hardware, abstracting the
 In this code `ControllerIO.java` is the base class that contains default methods that return safe values while `ControllerIOPS5.java` and `ControllerIOXbox.java` implment the required methods from `ControllerIO.java`. In `RobotContainer.java` switching bettween PS5 and Xbox is simple:
 ```java
 public class RobotContainer {
-	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+	public static final ControllerIO driverController = Robot.isReal() ? new ControllerIOPS5(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT) : new ControllerIOXbox(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
 }
 ```
 
@@ -432,7 +432,7 @@ public class RobotContainer {
 To calculate the required launch pitch, yaw, and speed of the projectile, this code uses a RK4(Runge-Kutta 4th Order) physics simulation and Broyden's method. The physics simulation accounts for translational drag, rotational drag, the magnus effect, and shooter offsets. This has several advantages for the code:
  - Built in SOTM(Shoot On The Move)
  - Easy to tune for a new or incomplete robot
-The projectile simulation uses RK4 which allows it to run at incredibly low tps while still remaining stable. The projectile simulation code can be found in `src/main/java/frc/robot/libraries/ProjectileSimulation.java` and the simulation itself is handled by the `simulateLaunch` method. One of the most difficult parts of the simulation was optimizing it for the robot rio. The robo rio is incredably underpowered as its CPU has 2 cores that run at 667 MHz. To optimize the code I had to use several strategies:
+The projectile simulation uses RK4 which allows it to run at incredibly low tps(Ticks Per Second) while still remaining stable. The projectile simulation code can be found in `src/main/java/frc/robot/libraries/ProjectileSimulation.java` and the simulation itself is handled by the `simulateLaunch` method. One of the most difficult parts of the simulation was optimizing it for the robo-rio. The robo-rio is incredably underpowered as its CPU has 2 cores that run at 667 MHz. To optimize the code I had to use several strategies:
  - All varibles in the main simulation loop are declared once then over written.
  - No dynamic length arrays
  - All varibles are primatives
@@ -452,7 +452,7 @@ Using the errors from the inital simulations the optimizer constructs a matrix t
  - `TargetErrorCode.SPEED_UPPER_LIMIT` : When the solver produces a solution where the speed is higher then the shooter is capable of
  - `TargetErrorCode.SPEED_LOWER_LIMIT` : When the solver produces a solution where the speed is higher then the shooter is capable of
 
-Because of how underpowered the robo rio to prevent loop overruns the physics simulation and optimizer are ran on a seperate `projectileThread` than the main robot code:
+Because of how underpowered the robo-rio is, to prevent loop overruns the physics simulation and optimizer are ran on a seperate `projectileThread` than the main robot code:
 ```java
 public class CalculationSubsystem {
 
@@ -516,4 +516,77 @@ public class CalculationSubsystem {
 
 As an additional safty measure to prevent the main thread from even being fully starved the `projectileThread` sleeps for a minimum of 5 ms per loop. The `projectileThread` uses `AtomicReference` to pass information bettween itself and the main thread and vice versa. This prevents race condtions which could cause corrupted values.
 
-# 
+# Health Monitoring
+The `HealthSubsystem.java` class provides a central place for subsystems to report issues. While right now these issues are only displayed on the LED strip I originaly planned for it to have more integration with smart dashboard. Currently the following errors can be reported:
+
+### ErrorConstants.java
+```java
+public final class ErrorConstants {
+    public static final double SPLIT_PERCENT = 0.475;
+
+    public static final ErrorCode JOYSTICKS_DISCONNECTED = new ErrorCode(
+        10,
+        "No joysticks connected",
+        LEDPattern.steps(Map.of(0, Color.kPurple, SPLIT_PERCENT, Color.kRed)),
+        true,
+        true
+    );
+
+    public static final ErrorCode DS_DISCONNECTED = new ErrorCode(
+        10,
+        "No driver station connection",
+        LEDPattern.solid(new Color(255, 0, 0)).breathe(Second.of(1.0)),
+        true,
+        true
+    );
+
+    public static final ErrorCode MOTOR_CAN_ERROR = new ErrorCode(
+        10,
+        "A sparkmax has a CAN error",
+        LEDPattern.steps(Map.of(0, Color.kGreen, SPLIT_PERCENT, Color.kYellow)),
+        false,
+        true
+    );
+
+    public static final ErrorCode SWERVE_ABSOLUTE_ENCODER_ERROR = new ErrorCode(
+        10,
+        "A swerve drive absolute encoder has an error",
+        LEDPattern.steps(Map.of(0, Color.kWhite, SPLIT_PERCENT, Color.kPurple)),
+        false,
+        true
+    );
+
+    public static final ErrorCode LIMELIGHT_DISCONNECTED = new ErrorCode(
+        10,
+        "A limelight is disconnected",
+        LEDPattern.steps(Map.of(0, Color.kGreen, SPLIT_PERCENT, Color.kBlue)),
+        false,
+        true
+    );
+
+    public static final ErrorCode QUEST_DISCONNECTED = new ErrorCode(
+        10,
+        "The quest is disconnected",
+        LEDPattern.steps(Map.of(0, Color.kWhite, SPLIT_PERCENT, Color.kBlue)),
+        false,
+        false
+    );
+
+    public static final ErrorCode LOW_BATTERY_VOLTAGE = new ErrorCode(
+        10,
+        "The battery is below its low voltage threshold",
+        LEDPattern.steps(Map.of(0, Color.kWhite, SPLIT_PERCENT, Color.kGreen)),
+        false,
+        true
+    );
+
+    public static final ErrorCode QUEST_LOW_BATTERY = new ErrorCode(
+        10,
+        "The quest battery is below its low voltage threshold",
+        LEDPattern.steps(Map.of(0, Color.kWhite, SPLIT_PERCENT, Color.kRed)),
+        false,
+        true
+    );
+}
+```
+
