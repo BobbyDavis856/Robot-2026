@@ -83,6 +83,7 @@ src/main/
     ├── Robot.java
     └── RobotContainer.java
 ```
+Subsystems are split into overarching folders which are split further into subsystems for each mechanism in the robot. I have been advised that traditionally subsystems are much less granular. For example `KickerSubystem.java`, `ShooterSubsystem.java`, and `TurretSubsystem.java` would traditionally be combined into one subsystem. I chose not to do this becuase each mechanism has its own states that it can be in and combining all those mechanisms into one subsystem would have required that subsystem to manage three state machines or one very large state machine. 
 
 # IO abstraction layer
 
@@ -143,10 +144,11 @@ public class SpindexerIOReal implements SpindexerIO {
 }
 ```
 
-The `SpindexerIO.java` class is an interface that implements default functions. Default getter functions return safe values that won't crash the subsystem or cause adverse effects. Setter functions accept all of the arguments of the normal setter then discard the values and do nothing. In `SpindexerIOReal.java` each of the default methods is implemented via a `@Override`
+The `SpindexerIO.java` class is an interface that implements default functions. Default getter functions return safe values that won't crash the subsystem or cause adverse effects. Setter functions accept all of the arguments of the normal setter then discard the values and do nothing. In `SpindexerIOReal.java` each of the default methods is implemented via a `@Override`. I didn't know this at the time but traditionally IO abstractions are used for better integration with `AdvantageKit`. While this robot does use `AdvantageKit` it does not take full advantage of it. I would encourage you do some research and decide if it is worth it for you.
 
 # Statemachines
-Each of the subsystems that controls hardware with the exception of `SwerveSubsystem.java`, `LimelightSubsystem.java`, `QuestNavSubsystem.java`, and `LightSubsystem.java` extends a custom statemachine called `SubsystemStateMachine` (Code can be found in `/src/main/java/frc/robot/libraries/SubsystemStateMachine.java`) which itself extends `SubsystemBase` and provides a proxy for the custom `StateMachine` (Code can be found in `/src/main/java/frc/robot/libraries/StateMachine.java`). State machines have several advantages for the code:
+Each of the subsystems that controls hardware with the exception of `SwerveSubsystem.java`, `LimelightSubsystem.java`, `QuestNavSubsystem.java`, and `LightSubsystem.java` extends a custom statemachine called `SubsystemStateMachine` (Code can be found in `/src/main/java/frc/robot/libraries/SubsystemStateMachine.java`) which itself extends `SubsystemBase` and provides a proxy for the custom `StateMachine` (Code can be found in `/src/main/java/frc/robot/libraries/StateMachine.java`). The subsystems that control hardware but do not use the state machine frame work do so because they have no states they need to control.
+State machines have several advantages for the code:
  - It centralizes the state switching logic
  - It adds a priority system so multiple systems requesting a state get automatically prioritized
  - It reduces conditions where the robot goes into weird states that are hard to debug
@@ -450,7 +452,7 @@ Using the errors from the inital simulations the optimizer constructs a matrix t
  - `TargetErrorCode.FORWARD_ERROR_HIGH` : When the solver produces a solution where the forward error of the projectile is too high
  - `TargetErrorCode.RIGHT_ERROR_HIGH` : When the solver produces a solution where the right/left error of the projectile is too high
  - `TargetErrorCode.SPEED_UPPER_LIMIT` : When the solver produces a solution where the speed is higher then the shooter is capable of
- - `TargetErrorCode.SPEED_LOWER_LIMIT` : When the solver produces a solution where the speed is higher then the shooter is capable of
+ - `TargetErrorCode.SPEED_LOWER_LIMIT` : When the solver produces a solution where the speed is lower then the shooter is capable of
 
 Because of how underpowered the robo-rio is, to prevent loop overruns the physics simulation and optimizer are ran on a seperate `projectileThread` than the main robot code:
 ```java
@@ -514,7 +516,7 @@ public class CalculationSubsystem {
 }
 ```
 
-As an additional safty measure to prevent the main thread from even being fully starved the `projectileThread` sleeps for a minimum of 5 ms per loop. The `projectileThread` uses `AtomicReference` to pass information bettween itself and the main thread and vice versa. This prevents race condtions which could cause corrupted values.
+As an additional safty measure to prevent the main thread from even being fully starved the `projectileThread` sleeps for a minimum of 5 ms per loop. The `projectileThread` uses `AtomicReference` to pass information bettween itself and the main thread and vice versa. This prevents race condtions which could cause corrupted values. Something very important to note is that threads other then the main thread should never try to access hardware like encoder values.
 
 # Health Monitoring
 The `HealthSubsystem.java` class provides a central place for subsystems to report issues. While right now these issues are only displayed on the LED strip I originaly planned for it to have more integration with smart dashboard. Currently the following errors can be reported:
@@ -617,4 +619,33 @@ This code shows how errors are reported by the subsystems. There are several imp
  - To prevent flickering errors persist for a couple of seconds
  - Errors are reported on a per subsystem basis.
 Errors being reported on a per subsystem basis allows multiple subsystems to be reporting and clearing the same error at the same time without interfering with eachother. To show errors the `LightSubsystem.java` calls `getCurrentDisplayError` from `HealthSubsystem.java`. `getCurrentDisplayError` automatically loops through all active errors while respecting `showEnabled` and `showDisabled`. 
+# Commands
+While subsystems provide an interface for controlling the robot, commands tell the robot what state it needs to be in and how to move to accomplish a task.
+```java
+public class ActivateShooterCommand extends Command {
 
+    public ActivateShooterCommand() {
+        addRequirements(RobotContainer.shooterSubsystem);
+    }
+    
+    @Override
+    public void initialize() {
+        RobotContainer.shooterSubsystem.setTargetSpeed(Constants.ShooterConstants.SHOOTER_MAX_VELOCITY);
+    }
+
+    @Override
+    public void execute() {
+        RobotContainer.shooterSubsystem.requestDesiredState(ShooterState.READY, 5);
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        RobotContainer.shooterSubsystem.requestDesiredState(ShooterState.IDLE, 5);
+    }
+}
+```

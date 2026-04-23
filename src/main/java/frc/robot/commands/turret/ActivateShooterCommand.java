@@ -5,7 +5,7 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.turret.ShooterSubsystem.ShooterState;
 
-public class ActivateShooterCommand extends Command{
+public class ActivateShooterCommand extends Command {
 
     public ActivateShooterCommand() {
         addRequirements(RobotContainer.shooterSubsystem);
