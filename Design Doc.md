@@ -589,4 +589,32 @@ public final class ErrorConstants {
     );
 }
 ```
+Each `ErrorCode` contains information about its `priority`, `errorText`, `ledPattern`, `showEnabled`, and `showDisabled`. `showEnabled` controls whether the error shows up on the LED strip when the robot is enabled and `showDisabled` controls whether the error shows up on the LED strip when the robot is disabled. This allows for more fine grained error reporting as there is no point in showing a `MOTOR_CAN_ERROR` for example, while the robot is enabled because when the robot is on the field there is nothing anyone at the driver station can do. Conversely `DS_DISCONNECTED` and `JOYSTICKS_DISCONNECTED` do show while the robot is enabled because those are issues that the people at the driverstation could fix. Subsystems report and clear errors by using `reportError` and `clearError` from `HealthSubsystem.java`.
+```java
+public class KickerSubsystem extends SubsystemStateMachine<frc.robot.subsystems.turret.KickerSubsystem.KickerState> {
+    private double lastErrorTimestamp = Double.NEGATIVE_INFINITY;
+
+    public void checkCanHealth() {
+        double timestamp = Timer.getFPGATimestamp();
+        if (io.checkCANError()) {
+            lastErrorTimestamp = timestamp;
+        }
+
+        if ((timestamp - lastErrorTimestamp) < Constants.HealthConstants.CAN_ERROR_PERSIST.in(Second)) {
+            RobotContainer.healthSubsystem.reportError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        } else {
+            RobotContainer.healthSubsystem.clearError(getSubsystem(), ErrorConstants.MOTOR_CAN_ERROR);
+        }
+    }
+
+    @Override
+    public void statePeriodic() {
+        checkCanHealth();
+    }
+}
+```
+This code shows how errors are reported by the subsystems. There are several important things to note:
+ - To prevent flickering errors persist for a couple of seconds
+ - Errors are reported on a per subsystem basis.
+Errors being reported on a per subsystem basis allows multiple subsystems to be reporting and clearing the same error at the same time without interfering with eachother. To show errors the `LightSubsystem.java` calls `getCurrentDisplayError` from `HealthSubsystem.java`. `getCurrentDisplayError` automatically loops through all active errors while respecting `showEnabled` and `showDisabled`. 
 
